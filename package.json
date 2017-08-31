@@ -1,6 +1,6 @@
 {
   "name": "kraken-exc",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An NPM package for utilizing the Kraken exchange API",
   "main": "index.js",
   "scripts": {

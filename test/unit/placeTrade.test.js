@@ -121,6 +121,35 @@ describe('#placeTrade', function () {
     });
   });
 
+  it('should round to 2 decimails if provided limitPrice has 3 decimails', function (done) {
+    placeTradeResponse.result = {
+      descr: {order: 'buy 1.00000000 XBTUSD @ limit 100.000'},
+      txid: ['OOWXPS-75QXE-6YRBUU']
+    };
+    reqStub.yields(null, {}, JSON.stringify(placeTradeResponse));
+
+    kraken.placeTrade(100000000, 100.1259, 'BTC', 'USD', function (err, result) {
+      if (err) {
+        return done(err);
+      }
+
+      expect(reqStub.calledOnce).to.equal(true);
+      // Check input args
+      expect(reqStub.firstCall.args[0]).to.containSubset({
+        form: {
+          otp: '2FA',
+          pair: 'XXBTZUSD',
+          type: 'buy',
+          ordertype: 'limit',
+          price: 100.13,
+          volume: 1
+        }
+      });
+
+      done();
+    });
+  });
+
   /* =================   Testing wrong input to the endpoints   ================= */
 
   it('returns an error about wrong currency input arguments', function (done) {
