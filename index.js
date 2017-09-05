@@ -554,10 +554,10 @@ Kraken.prototype.placeTrade = function(baseAmount, limitPrice, baseCurrency, quo
   }
 
   /*
-   * API call fails if there is more than 2 decimails of precision
+   * API call fails if there is more than 1 decimails of precision
    * So we round to nearest decimal
    */
-  limitPrice = Math.round(100 * limitPrice) / 100;
+  limitPrice = Math.round(10 * limitPrice) / 10;
 
   /* Decide whether to place a BUY or a SELL trade */
   const orderType = baseAmount < 0 ? constants.TYPE_SELL_ORDER : constants.TYPE_BUY_ORDER,
