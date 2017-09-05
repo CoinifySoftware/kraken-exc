@@ -57,7 +57,7 @@ describe('#placeTrade', function () {
           pair: 'XXBTZUSD',
           type: 'sell',
           ordertype: 'limit',
-          price: 10000.57,
+          price: 10000.6,
           volume: 0.01
         }
       });
@@ -71,7 +71,7 @@ describe('#placeTrade', function () {
       expect(result.baseAmount).to.equal(-1000000);
       expect(result.baseCurrency).to.equal('BTC');
       expect(result.quoteCurrency).to.equal('USD');
-      expect(result.limitPrice).to.equal(10000.57);
+      expect(result.limitPrice).to.equal(10000.6);
       expect(result).to.have.property('raw');
       expect(result.raw).to.containSubset(placeTradeResponse.result);
 
@@ -121,7 +121,7 @@ describe('#placeTrade', function () {
     });
   });
 
-  it('should round to 2 decimails if provided limitPrice has 3 decimails', function (done) {
+  it('should round to 1 decimails if provided limitPrice has 3 decimails', function (done) {
     placeTradeResponse.result = {
       descr: {order: 'buy 1.00000000 XBTUSD @ limit 100.000'},
       txid: ['OOWXPS-75QXE-6YRBUU']
@@ -141,7 +141,7 @@ describe('#placeTrade', function () {
           pair: 'XXBTZUSD',
           type: 'buy',
           ordertype: 'limit',
-          price: 100.13,
+          price: 100.1,
           volume: 1
         }
       });
