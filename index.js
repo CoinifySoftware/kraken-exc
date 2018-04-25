@@ -4,7 +4,7 @@ const _ = require('lodash'),
   Error = require('./lib/ErrorHelper'),
   Request = require('./lib/RequestHelper'),
   apiResponseConverter = require('./lib/ApiResponseConverter'),
-  async = require('async'),
+  consoleLogLevel = require('console-log-level'),
   constants = require('./lib/constants');
 
 /* =================   Constructor   ================= */
@@ -15,6 +15,7 @@ const Kraken = function(settings) {
   this.otp = settings.otp;
   this.host = settings.host || constants.HOST;
   this.timeout = settings.timeout || constants.REQUEST_TIMEOUT;
+  this.logger = settings.logger || consoleLogLevel({level: 'debug'});
 
   const normalizedSupportedCurrencies = settings.supportedCurrencies || constants.DEFAULT_SUPPORTED_CURRENCIES;
   this.supportedCurrencies = normalizedSupportedCurrencies.map(apiResponseConverter.convertToKrakenCurrencyCode)
