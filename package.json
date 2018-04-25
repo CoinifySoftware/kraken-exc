@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "async": "^1.5.2",
+    "console-log-level": "^1.4.0",
     "crypto": "0.0.3",
     "lodash": "~4.11.1",
     "querystring": "^0.2.0",
