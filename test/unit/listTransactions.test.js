@@ -33,7 +33,7 @@ describe('listTransactions', function () {
   });
 
   it('calls kraken api twice', function (done) {
-    reqStub.yields(null, {ledger: {}, count: 0});
+    reqStub.yields(null, {ledger: {}});
 
     kraken.listTransactions(null, function (err, result) {
       expect(reqStub.callCount).to.equal(2);
@@ -66,10 +66,8 @@ describe('listTransactions', function () {
     };
     const withdrawalApiResponse =
     {
-      ledger: {'LQ4LR7-6WL5O-Y4XDP3': withdrawalRawObject},
-      count: 1
+      ledger: {'LQ4LR7-6WL5O-Y4XDP3': withdrawalRawObject}
     };
-    reqStub.withArgs(sinon.match.any, 'Ledgers', sinon.match({type: 'withdrawal'})).yields(null, withdrawalApiResponse);
 
     /*
      * Mock response from the deposit Ledgers endpoint
@@ -87,10 +85,8 @@ describe('listTransactions', function () {
     };
     const depositApiResponse =
     {
-      ledger: {'G4HJR1-WWT7H-YH945H': depositRawObject},
-      count: 1
+      ledger: {'G4HJR1-WWT7H-YH945H': depositRawObject}
     };
-    reqStub.withArgs(sinon.match.any, 'Ledgers', sinon.match({type: 'deposit'})).yields(null, depositApiResponse);
 
     /*
      * Define expected response from listTransactions()
@@ -116,6 +112,13 @@ describe('listTransactions', function () {
       }
     ];
 
+    const withdrawalReqStub = reqStub.withArgs(sinon.match.any, 'Ledgers', sinon.match({type: 'withdrawal'}));
+    withdrawalReqStub.onCall(0).yields(null, withdrawalApiResponse);
+    withdrawalReqStub.onCall(1).yields(null, {ledger: {}});
+
+    const depositReqStub = reqStub.withArgs(sinon.match.any, 'Ledgers', sinon.match({type: 'deposit'}));
+    depositReqStub.onCall(0).yields(null, depositApiResponse);
+    depositReqStub.onCall(1).yields(null, {ledger: {}});
 
     kraken.listTransactions(null, function (err, result) {
       expect(result).to.deep.equal(expectedConvertedResponse);
@@ -131,7 +134,7 @@ describe('listTransactions', function () {
      * that each return 50 entries, and then one (the last) which returns fewer than 50
      */
     // withdrawal call returns an empty list, we only test the deposits here
-    reqStub.withArgs(sinon.match.any, 'Ledgers', sinon.match({type: 'withdrawal'})).yields(null, {ledger: {}, count: 0});
+    reqStub.withArgs(sinon.match.any, 'Ledgers', sinon.match({type: 'withdrawal'})).yields(null, {ledger: {}});
 
     const depositRawObject =
     {
@@ -146,24 +149,26 @@ describe('listTransactions', function () {
     };
     const depositReqStub = reqStub.withArgs(sinon.match.any, 'Ledgers', sinon.match({type: 'deposit'}));
 
-    // Create 3 responses that return max entries (total will be 151 entries)
-    for (let i = 0; i < 3; i++) {
-      const response = {ledger: {}, count: 151};
+    /*
+    * Create 4 responses that 3 of them return max entries last one returns empty ledger
+    * to stop the requests
+    */
+    for (let i = 0; i < 4; i++) {
+      const response = {ledger: {}};
 
-      for (let n = 0; n < 50; n++) {
-        const id = '123456-78901-00' + i + '0' + n;
-        const refid = '1234567-123456-00' + i + '0' + n;
-        response.ledger[id] = _.defaults({refid}, depositRawObject);
+      if (i < 3) {
+        for (let n = 0; n < 50; n++) {
+          const id = '123456-78901-00' + i + '0' + n;
+          const refid = '1234567-123456-00' + i + '0' + n;
+          response.ledger[id] = _.defaults({refid}, depositRawObject);
+        }
       }
 
       depositReqStub.onCall(i).yields(null, response);
     }
 
-    // Last response that returns just a single entry
-    depositReqStub.onCall(3).yields(null, {
-      ledger: {'123456-00000-000001': _.defaultsDeep({refid: '1234567-000000-00001'}, depositRawObject)},
-      count: 151
-    });
+    // Last response that returns just a empty object
+    depositReqStub.onCall(3).yields(null, {ledger: {}});
 
     /*
      * Call the API and expect to get (50*3 + 1) = 151 deposit transactions back
@@ -171,7 +176,7 @@ describe('listTransactions', function () {
     return kraken.listTransactions(null, function (err, result) {
       expect(err).to.equal(null);
 
-      expect(result).to.have.lengthOf(151);
+      expect(result).to.have.lengthOf(150);
       expect(_.every(result, tx => tx.type === 'deposit')).to.equal(true);
 
       // 1 withdrawal call, 4 deposit calls
@@ -189,7 +194,7 @@ describe('listTransactions', function () {
   });
 
   it('queries ledger entries after the one in the latestTransaction argument', function (done) {
-    reqStub.yields(null, {ledger: {}, count: 0});
+    reqStub.yields(null, {ledger: {}});
 
     const latestTransaction =
     {
@@ -228,7 +233,7 @@ describe('listTransactions', function () {
   it('propagates kraken api error properly', function (done) {
     const someError = new Error('sth broke');
     reqStub.onCall(1).yields(someError);
-    reqStub.yields(null, {ledger: {}, count: 0});
+    reqStub.yields(null, {ledger: {}});
 
     kraken.listTransactions(null, function (err, result) {
       expect(err).to.equal(someError);
