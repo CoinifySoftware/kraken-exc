@@ -445,7 +445,7 @@ Kraken.prototype.listTransactions = function(latestTransaction, callback) {
 
   const self = this;
 
-  // If a latestTransaction is given, use that to not get transactions earler than that one.
+  // If a latestTransaction is given, use that to not get transactions earlier than that one.
   // We have to truncate the unix timestamp in order to be sure that latestTransaction is included in the response
   const start = latestTransaction ? Math.trunc(latestTransaction.raw.time) : null;
 
@@ -487,7 +487,7 @@ Kraken.prototype._listTransactionsRecursive = function(type, start, knownTransac
   const self = this;
 
   // Perform POST request to Ledgers endpoint
-  var postData = {
+  const postData = {
     type: type,
     ofs: knownTransactions.length
   };
@@ -500,9 +500,9 @@ Kraken.prototype._listTransactionsRecursive = function(type, start, knownTransac
       return callback(err);
     }
 
-    // Check that the response contains ledger and count fields
-    if (!_.isObject(response.ledger) || !_.isInteger(response.count)) {
-      var error = Error.create('Unexpected response from Ledgers endpoint', Error.EXCHANGE_SERVER_ERROR);
+    // Check that the response contains ledger
+    if (!_.isObject(response.ledger)) {
+    const error = Error.create('Unexpected response from Ledgers endpoint', Error.EXCHANGE_SERVER_ERROR);
       error.responseBody = JSON.stringify(response);
       return callback(error)
     }
@@ -513,11 +513,8 @@ Kraken.prototype._listTransactionsRecursive = function(type, start, knownTransac
     // Merge our newly converted transactions with the ones from previous calls
     const allTransactions = transactions.concat(knownTransactions);
 
-    // Check if we have exhausted all ledger entries or if we have to call the endpoint again
-    const totalLedgerLength = response.count;
-
     // Decide how to progress: Continue if there are more ledger entries, otherwise just stop now.
-    if (allTransactions.length >= totalLedgerLength) {
+    if (_.isEmpty(response.ledger)) {
       // No more ledger entries to be found. Let's just return them now!
       return callback(null, allTransactions);
     }
@@ -584,7 +581,7 @@ Kraken.prototype.placeTrade = function(baseAmount, limitPrice, baseCurrency, quo
     }
 
     /* Construct the custom trade response object */
-    var trade = {
+    const trade = {
       externalId: res.txid[0],
       type: 'limit',
       state: 'open',
