@@ -19,6 +19,8 @@ const Kraken = function(settings) {
 
   const normalizedSupportedCurrencies = settings.supportedCurrencies || constants.DEFAULT_SUPPORTED_CURRENCIES;
   this.supportedCurrencies = normalizedSupportedCurrencies.map(apiResponseConverter.convertToKrakenCurrencyCode)
+
+  console.log(JSON.stringify(this.supportedCurrencies));
 };
 
 /* =================   API endpoints exposed methods   ================= */
@@ -34,16 +36,16 @@ function validateCurrenciesConstructPair(baseCurrency, quoteCurrency) {
   baseCurrency = baseCurrency.toUpperCase();
   quoteCurrency = quoteCurrency.toUpperCase();
 
-  if (baseCurrency !== 'BTC' || !_.includes(['USD', 'EUR'], quoteCurrency)) {
+  if (!_.includes(['BTC', 'BSV'], baseCurrency) || !_.includes(['USD', 'EUR'], quoteCurrency)) {
     return {
-      error: Error.create('Kraken only supports BTC as base currency and USD or EUR as quote currency.',
+      error: Error.create('Kraken only supports BTC or BSV as base currency and USD or EUR as quote currency.',
         Error.MODULE_ERROR, null)
     };
   }
 
   /* Kraken returns XBT as BTC. It accepts both variations, but returns XBT only. */
-  const baseCurrencyKraken = 'BTC' ? 'XBT' : baseCurrency,
-    pair = `X${baseCurrencyKraken}Z${quoteCurrency}`;
+  const baseCurrencyKraken = (baseCurrency === 'BTC') ? 'XBT' : baseCurrency,
+    pair = (baseCurrency === 'BTC') ? `X${baseCurrencyKraken}Z${quoteCurrency}` : `${baseCurrencyKraken}${quoteCurrency}`;
 
   return {
     baseCurrency,
@@ -213,13 +215,15 @@ Kraken.prototype.getBalance = function(callback) {
       const total = {
         'USD': resBalance.ZUSD ? Currency.toSmallestSubunit(resBalance.ZUSD, 'USD') : 0,
         'EUR': resBalance.ZEUR ? Currency.toSmallestSubunit(resBalance.ZEUR, 'EUR') : 0,
-        'BTC': resBalance.XXBT ? Currency.toSmallestSubunit(resBalance.XXBT, 'BTC') : 0
+        'BTC': resBalance.XXBT ? Currency.toSmallestSubunit(resBalance.XXBT, 'BTC') : 0,
+        'BSV': resBalance.BSV ? Currency.toSmallestSubunit(resBalance.BSV, 'BSV') : 0
       };
 
       const toSubtractFromTotal = {
         'XBT': 0,
         'EUR': 0,
-        'USD': 0
+        'USD': 0,
+        'BSV': 0
       };
       let baseCurrency, quoteCurrency, baseCurrencyToConvert;
 
@@ -249,7 +253,8 @@ Kraken.prototype.getBalance = function(callback) {
       const available = {
         'USD': total.USD - toSubtractFromTotal.USD,
         'EUR': total.EUR - toSubtractFromTotal.EUR,
-        'BTC': total.BTC - toSubtractFromTotal.XBT
+        'BTC': total.BTC - toSubtractFromTotal.XBT,
+        'BSV': total.BSV - toSubtractFromTotal.BSV
       };
 
       return callback(null, {
@@ -535,7 +540,7 @@ Kraken.prototype._listTransactionsRecursive = function(type, start, knownTransac
  * @param {number}      limitPrice      The minimum/maximum rate that you want to sell/buy for. If baseAmount is negative, this
  *                                      is the minimum rate to sell for. If baseAmount is positive, this is the maximum rate to
  *                                      buy for. limitPrice must always strictly positive
- * @param {string}      baseCurrency    The exchange's base currency. For Kraken it is always BTC
+ * @param {string}      baseCurrency    The exchange's base currency. For Kraken it is always BTC or BSV
  * @param {string}      quoteCurrency   The exchange's quote currency. For Kraken it is always USD
  * @param {function}    callback        Returns the customized data object of the placed trade object data
  */
