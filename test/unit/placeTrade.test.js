@@ -157,7 +157,7 @@ describe('#placeTrade', function () {
       expect(reqStub.calledOnce).to.equal(false);
       expect(result).to.equal(undefined);
 
-      expect(err.message).to.equal('Kraken only supports BTC as base currency and USD or EUR as quote currency.');
+      expect(err.message).to.equal('Kraken only supports BTC or BSV as base currency and USD or EUR as quote currency.');
       expect(err.code).to.equal(Error.MODULE_ERROR);
       expect(err.cause).to.equal(undefined);
 
