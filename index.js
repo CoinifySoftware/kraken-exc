@@ -18,9 +18,7 @@ const Kraken = function(settings) {
   this.logger = settings.logger || consoleLogLevel({level: 'debug'});
 
   const normalizedSupportedCurrencies = settings.supportedCurrencies || constants.DEFAULT_SUPPORTED_CURRENCIES;
-  this.supportedCurrencies = normalizedSupportedCurrencies.map(apiResponseConverter.convertToKrakenCurrencyCode)
-
-  console.log(JSON.stringify(this.supportedCurrencies));
+  this.supportedCurrencies = normalizedSupportedCurrencies.map(apiResponseConverter.convertToKrakenCurrencyCode);
 };
 
 /* =================   API endpoints exposed methods   ================= */
