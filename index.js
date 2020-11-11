@@ -92,6 +92,16 @@ Kraken.prototype.getOrderBook = function(baseCurrency, quoteCurrency, callback) 
       return callback(err);
     }
 
+    // This happened, so lets fix it for kraken
+    if (res['BTC/USD']) {
+      res['XXBTZEUR'] = res['BTC/USD'];
+    }
+
+    if (!res[currencies.pair]) {
+      return callback(Error.create(`Currency pair: ${currencies.pair} is not in response`,
+      Error.MODULE_ERROR, null));
+    }
+
     /* Declare the orderBook object with the currency pair */
     const orderBook = {
       baseCurrency: currencies.baseCurrency,
