@@ -94,7 +94,7 @@ Kraken.prototype.getOrderBook = function(baseCurrency, quoteCurrency, callback) 
 
     // This happened, so lets fix it for kraken
     if (res['BTC/USD']) {
-      res['XXBTZEUR'] = res['BTC/USD'];
+      res['XXBTZUSD'] = res['BTC/USD'];
     }
 
     if (!res[currencies.pair]) {

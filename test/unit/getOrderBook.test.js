@@ -32,7 +32,7 @@ describe('#getOrderBook', function () {
   };
 
 
-  const getOrderBookWeirdResponse =
+  const getOrderBookAlternativeResponse =
   {
     error: [],
     result: {
@@ -75,9 +75,9 @@ describe('#getOrderBook', function () {
   it('should return error when currency pair is not found in response', function (done) {
     reqStub.yields(null, {}, JSON.stringify(getOrderBookInvalidResponse));
 
-    kraken.getOrderBook('BTC', 'EUR', function (err, result) {
+    kraken.getOrderBook('BTC', 'USD', function (err, result) {
       if (err) {
-        expect(err.message).to.equal('Currency pair: XXBTZEUR is not in response')
+        expect(err.message).to.equal('Currency pair: XXBTZUSD is not in response')
         return done();
       }
 
@@ -85,10 +85,10 @@ describe('#getOrderBook', function () {
     });
   });
 
-  it('should access weird currency pair in response (this happened twice already)', function (done) {
-    reqStub.yields(null, {}, JSON.stringify(getOrderBookWeirdResponse));
+  it('should access alternative currency pair in response', function (done) {
+    reqStub.yields(null, {}, JSON.stringify(getOrderBookAlternativeResponse));
 
-    kraken.getOrderBook('BTC', 'EUR', function (err, result) {
+    kraken.getOrderBook('BTC', 'USD', function (err, result) {
       if (err) {
         return done(err);
       }
@@ -96,7 +96,7 @@ describe('#getOrderBook', function () {
       expect(result).to.be.an('Object');
 
       expect(result.baseCurrency).to.equal('BTC');
-      expect(result.quoteCurrency).to.equal('EUR');
+      expect(result.quoteCurrency).to.equal('USD');
 
       expect(result).to.have.property('asks');
       expect(result).to.have.property('bids');
