@@ -41,7 +41,7 @@
     "lint": "npx eslint --color .",
     "lint-fix": "npx eslint --fix .",
     "test": "LOG_LEVEL=fatal mocha --config .mocharc.json",
-    "test-watch": "LOG_LEVEL=fatal mocha --config .mocharc.json --watch"
+    "test-watch": "LOG_LEVEL=info mocha --config .mocharc.json --watch"
   },
   "version": "1.4.2"
 }

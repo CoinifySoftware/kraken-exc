@@ -220,14 +220,16 @@ Kraken.prototype.getBalance = function (callback) {
         USD: resBalance.ZUSD ? coinifyCurrency.toSmallestSubunit(resBalance.ZUSD, 'USD') : 0,
         EUR: resBalance.ZEUR ? coinifyCurrency.toSmallestSubunit(resBalance.ZEUR, 'EUR') : 0,
         BTC: resBalance.XXBT ? coinifyCurrency.toSmallestSubunit(resBalance.XXBT, 'BTC') : 0,
-        BSV: resBalance.BSV ? coinifyCurrency.toSmallestSubunit(resBalance.BSV, 'BSV') : 0
+        BSV: resBalance.BSV ? coinifyCurrency.toSmallestSubunit(resBalance.BSV, 'BSV') : 0,
+        ETH: resBalance.XETH ? coinifyCurrency.toSmallestSubunit(resBalance.XETH, 'ETH') : 0
       };
 
       const toSubtractFromTotal = {
         BTC: 0,
         EUR: 0,
         USD: 0,
-        BSV: 0
+        BSV: 0,
+        ETH: 0
       };
 
       /*
@@ -257,7 +259,8 @@ Kraken.prototype.getBalance = function (callback) {
         USD: total.USD - toSubtractFromTotal.USD,
         EUR: total.EUR - toSubtractFromTotal.EUR,
         BTC: total.BTC - toSubtractFromTotal.BTC,
-        BSV: total.BSV - toSubtractFromTotal.BSV
+        BSV: total.BSV - toSubtractFromTotal.BSV,
+        ETH: total.ETH - toSubtractFromTotal.ETH
       };
 
       return callback(null, {
