@@ -31,7 +31,7 @@ function validateCurrenciesConstructPair(baseCurrency, quoteCurrency) {
   baseCurrency = baseCurrency.toUpperCase();
   quoteCurrency = quoteCurrency.toUpperCase();
 
-  if (!_.includes([ 'BTC', 'BSV' ], baseCurrency) || !_.includes([ 'USD', 'EUR' ], quoteCurrency)) {
+  if (!_.includes([ 'BTC', 'BSV', 'ETH' ], baseCurrency) || !_.includes([ 'USD', 'EUR' ], quoteCurrency)) {
     return {
       error: Error.create('Kraken only supports BTC or BSV as base currency and USD or EUR as quote currency.',
         Error.MODULE_ERROR, null)
@@ -39,8 +39,8 @@ function validateCurrenciesConstructPair(baseCurrency, quoteCurrency) {
   }
 
   /* Kraken returns XBT as BTC. It accepts both variations, but returns XBT only. */
-  const baseCurrencyKraken = baseCurrency === 'BTC' ? 'XBT' : baseCurrency,
-    pair = baseCurrency === 'BTC' ? `X${baseCurrencyKraken}Z${quoteCurrency}` : `${baseCurrencyKraken}${quoteCurrency}`;
+  const baseCurrencyKraken = baseCurrency === 'BTC' ? 'XBT' : baseCurrency;
+  const pair = [ 'BTC', 'ETH' ].includes(baseCurrency) ? `X${baseCurrencyKraken}Z${quoteCurrency}` : `${baseCurrencyKraken}${quoteCurrency}`;
 
   return {
     baseCurrency,
