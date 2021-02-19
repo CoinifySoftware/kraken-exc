@@ -3,7 +3,6 @@ const request = require('request');
 const expect = require('chai').expect;
 const Kraken = require('../../index.js');
 const Error = require('../../lib/ErrorHelper.js');
-const { isMatchWith } = require('lodash');
 
 describe('#getTrade', function () {
   const kraken = new Kraken({
