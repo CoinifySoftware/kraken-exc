@@ -33,7 +33,44 @@ describe('#placeTrade', function () {
     done();
   });
 
-  /* =================   Testing response data consistency   ================= */
+  it('should place ETH trade', (done) => {
+    placeTradeResponse.result = {
+      descr: { order: 'buy 0.01000000 ETHUSD @ limit 10000.000' },
+      txid: [ 'OOWXPS-75QXE-6YRBUU' ]
+    };
+    reqStub.yields(null, {}, JSON.stringify(placeTradeResponse));
+
+    kraken.placeTrade(10000000000, 10000.57, 'ETH', 'USD', function (err, result) {
+      if (err) {
+        return done(err);
+      }
+
+      expect(result).to.eql({
+        externalId: 'OOWXPS-75QXE-6YRBUU',
+        type: 'limit',
+        state: 'open',
+        baseAmount: 10000000000,
+        baseCurrency: 'ETH',
+        quoteCurrency: 'USD',
+        limitPrice: 10000.6,
+        raw: {
+          descr: { order: 'buy 0.01000000 ETHUSD @ limit 10000.000' },
+          txid: [ 'OOWXPS-75QXE-6YRBUU' ]
+        }
+      });
+
+      expect(reqStub.firstCall.args[0].form).to.include({
+        pair: 'XETHZUSD',
+        type: 'buy',
+        ordertype: 'limit',
+        price: 10000.6,
+        volume: 0.01,
+        otp: '2FA'
+      });
+
+      done();
+    });
+  });
 
   it('places a SELL trade order on the exchange and returns a response object', (done) => {
     placeTradeResponse.result = {
