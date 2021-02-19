@@ -6,8 +6,7 @@ const Kraken = require('../../index.js');
 describe('#getBalance', function () {
   const kraken = new Kraken({
     key: 'apikey',
-    secret: 'apisecret',
-    otp: '2FA'
+    secret: 'apisecret'
   });
 
   let reqStub;
@@ -25,7 +24,7 @@ describe('#getBalance', function () {
   /* =================   Testing response data consistency   ================= */
 
   it('gets the balance of the account', function (done) {
-    const getBalanceResponse = { error: [], result: { ZEUR: '5.0568', XXBT: '12.6721093800' } };
+    const getBalanceResponse = { error: [], result: { ZEUR: '5.0568', XXBT: '12.6721093800', XETH: '1.01' } };
     const getOpenTradesResponse = {
       error: [],
       result: {
@@ -69,10 +68,12 @@ describe('#getBalance', function () {
       expect(result.available.USD).to.equal(0);
       expect(result.available.EUR).to.equal(406);
       expect(result.available.BTC).to.equal(1167210938);
+      expect(result.available.ETH).to.equal(1.01e12);
 
       expect(result.total.USD).to.equal(0);
       expect(result.total.EUR).to.equal(506);
       expect(result.total.BTC).to.equal(1267210938);
+      expect(result.total.ETH).to.equal(1.01e12);
 
       done();
     });

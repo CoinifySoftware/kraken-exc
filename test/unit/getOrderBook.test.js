@@ -30,7 +30,6 @@ describe('#getOrderBook', function () {
     }
   };
 
-
   const getOrderBookAlternativeResponse =
   {
     error: [],
@@ -70,6 +69,51 @@ describe('#getOrderBook', function () {
   });
 
   /* =================   Testing response data consistency   ================= */
+
+  it('should get order book for ETH', (done) => {
+    const getOrderBookETHResponse = {
+      error: [],
+      result: {
+        XETHZUSD: {
+          bids: [
+            [ '541.19000', '1.933', 1470576586 ],
+            [ '541.19600', '4.275', 1470576476 ],
+            [ '541.77000', '4.000', 1470576451 ]
+          ],
+          asks: [
+            [ '540.00900', '3.044', 1470576289 ],
+            [ '540.00200', '10.814', 1470575461 ],
+            [ '540.00000', '19.430', 1470574993 ]
+          ]
+        }
+      }
+    };
+
+    reqStub.yields(null, {}, JSON.stringify(getOrderBookETHResponse));
+
+    kraken.getOrderBook('ETH', 'USD', (err, result) => {
+      if (err) {
+        return done(err);
+      }
+
+      expect(result).to.eql({
+        baseCurrency: 'ETH',
+        quoteCurrency: 'USD',
+        bids: [
+          { price: 541.19, baseAmount: 1933000000000 },
+          { price: 541.196, baseAmount: 4275000000000 },
+          { price: 541.77, baseAmount: 4000000000000 } ],
+        asks: [
+          { price: 540.009, baseAmount: 3044000000000 },
+          { price: 540.002, baseAmount: 10814000000000 },
+          { price: 540, baseAmount: 19430000000000 }
+        ]
+      });
+
+      done();
+    });
+  });
+
 
   it('should return error when currency pair is not found in response', function (done) {
     reqStub.yields(null, {}, JSON.stringify(getOrderBookInvalidResponse));

@@ -31,16 +31,16 @@ function validateCurrenciesConstructPair(baseCurrency, quoteCurrency) {
   baseCurrency = baseCurrency.toUpperCase();
   quoteCurrency = quoteCurrency.toUpperCase();
 
-  if (!_.includes([ 'BTC', 'BSV' ], baseCurrency) || !_.includes([ 'USD', 'EUR' ], quoteCurrency)) {
+  if (!_.includes([ 'BTC', 'BSV', 'ETH' ], baseCurrency) || !_.includes([ 'USD', 'EUR' ], quoteCurrency)) {
     return {
-      error: Error.create('Kraken only supports BTC or BSV as base currency and USD or EUR as quote currency.',
+      error: Error.create('Kraken only supports BTC, ETH or BSV as base currency and USD or EUR as quote currency.',
         Error.MODULE_ERROR, null)
     };
   }
 
   /* Kraken returns XBT as BTC. It accepts both variations, but returns XBT only. */
-  const baseCurrencyKraken = baseCurrency === 'BTC' ? 'XBT' : baseCurrency,
-    pair = baseCurrency === 'BTC' ? `X${baseCurrencyKraken}Z${quoteCurrency}` : `${baseCurrencyKraken}${quoteCurrency}`;
+  const baseCurrencyKraken = baseCurrency === 'BTC' ? 'XBT' : baseCurrency;
+  const pair = [ 'BTC', 'ETH' ].includes(baseCurrency) ? `X${baseCurrencyKraken}Z${quoteCurrency}` : `${baseCurrencyKraken}${quoteCurrency}`;
 
   return {
     baseCurrency,
@@ -220,14 +220,16 @@ Kraken.prototype.getBalance = function (callback) {
         USD: resBalance.ZUSD ? coinifyCurrency.toSmallestSubunit(resBalance.ZUSD, 'USD') : 0,
         EUR: resBalance.ZEUR ? coinifyCurrency.toSmallestSubunit(resBalance.ZEUR, 'EUR') : 0,
         BTC: resBalance.XXBT ? coinifyCurrency.toSmallestSubunit(resBalance.XXBT, 'BTC') : 0,
-        BSV: resBalance.BSV ? coinifyCurrency.toSmallestSubunit(resBalance.BSV, 'BSV') : 0
+        BSV: resBalance.BSV ? coinifyCurrency.toSmallestSubunit(resBalance.BSV, 'BSV') : 0,
+        ETH: resBalance.XETH ? coinifyCurrency.toSmallestSubunit(resBalance.XETH, 'ETH') : 0
       };
 
       const toSubtractFromTotal = {
         BTC: 0,
         EUR: 0,
         USD: 0,
-        BSV: 0
+        BSV: 0,
+        ETH: 0
       };
 
       /*
@@ -257,7 +259,8 @@ Kraken.prototype.getBalance = function (callback) {
         USD: total.USD - toSubtractFromTotal.USD,
         EUR: total.EUR - toSubtractFromTotal.EUR,
         BTC: total.BTC - toSubtractFromTotal.BTC,
-        BSV: total.BSV - toSubtractFromTotal.BSV
+        BSV: total.BSV - toSubtractFromTotal.BSV,
+        ETH: total.ETH - toSubtractFromTotal.ETH
       };
 
       return callback(null, {

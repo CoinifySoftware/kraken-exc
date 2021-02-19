@@ -16,7 +16,8 @@ const Kraken = require('kraken-exc');
 
 const kraken = new Kraken({
     key: 'your_api_key',
-    secret: 'your_api_secret'
+    secret: 'your_api_secret',
+    otp: '2FA'
   }
 );
 ```

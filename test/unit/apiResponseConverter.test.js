@@ -1,6 +1,5 @@
-'use strict';
-const rewire = require('rewire'),
-  expect = require('chai').expect;
+const rewire = require('rewire');
+const expect = require('chai').expect;
 
 describe('#ApiResponseConverter', function () {
 
