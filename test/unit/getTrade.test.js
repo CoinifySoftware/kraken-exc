@@ -1,9 +1,9 @@
-'use strict';
-const sinon = require('sinon'),
-  request = require('request'),
-  expect = require('chai').expect,
-  Kraken = require('../../index.js'),
-  Error = require('../../lib/ErrorHelper.js');
+const sinon = require('sinon');
+const request = require('request');
+const expect = require('chai').expect;
+const Kraken = require('../../index.js');
+const Error = require('../../lib/ErrorHelper.js');
+const { isMatchWith } = require('lodash');
 
 describe('#getTrade', function () {
   const kraken = new Kraken({
@@ -112,7 +112,59 @@ describe('#getTrade', function () {
     done();
   });
 
-  /* =================   Testing response data consistency   ================= */
+  it('should get ETH trade', (done) => {
+    const ethTrade = {
+      raw: {
+        txid: [ 'ETH-TRADE-TX-ID' ],
+        orderType: 'buy',
+        createTime: '2015-09-03 11:40:46'
+      }
+    };
+
+    reqStub.yields(null, {}, JSON.stringify({
+      error: [],
+      result: {
+        'ETH-TRADE-TX-ID': {
+          pair: 'XETHZEUR',
+          type: 'buy',
+          ordertype: 'limit',
+          cost: '507.00000',
+          fee: '0.01318',
+          vol: '0.01000000'
+        }
+      }
+    }));
+
+    kraken.getTrade(ethTrade, function (err, result) {
+      if (err) {
+        return done(err);
+      }
+
+      expect(result).to.eql({
+        externalId: 'ETH-TRADE-TX-ID',
+        type: 'limit',
+        state: 'closed',
+        baseAmount: 10000000000,
+        quoteAmount: -50700,
+        baseCurrency: 'ETH',
+        quoteCurrency: 'EUR',
+        feeAmount: 1,
+        feeCurrency: 'EUR',
+        raw: {
+          'ETH-TRADE-TX-ID': {
+            pair: 'XETHZEUR',
+            type: 'buy',
+            ordertype: 'limit',
+            cost: '507.00000',
+            fee: '0.01318',
+            vol: '0.01000000'
+          }
+        }
+      });
+
+      done();
+    });
+  });
 
   it('gets the requested SELL trade', function (done) {
     getTradeResponse.result = tradeValues;
