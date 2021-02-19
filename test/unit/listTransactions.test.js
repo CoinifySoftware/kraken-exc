@@ -1,16 +1,14 @@
-"use strict";
+const sinon = require('sinon');
+const request = require('../../lib/RequestHelper.js');
+const expect = require('chai').expect;
+const _ = require('lodash');
+const Kraken = require('../../index.js');
 
-const sinon = require('sinon'),
-  request = require('../../lib/RequestHelper.js'),
-  expect = require('chai').expect,
-  _ = require('lodash'),
-  Kraken = require('../../index.js');
-
-describe('listTransactions', function () {
-  const supportedCurrencies = ['ETH', 'ETC'];
+describe('listTransactions', () => {
+  const supportedCurrencies = [ 'ETH', 'ETC' ];
   const krakenConfig = {
-    key: "apikey",
-    secret: "apisecret",
+    key: 'apikey',
+    secret: 'apisecret',
     otp: '2FA',
     host: 'host',
     timeout: 1000,
@@ -19,8 +17,7 @@ describe('listTransactions', function () {
 
   const kraken = new Kraken(krakenConfig);
 
-  let reqStub
-    , latestTransaction;
+  let reqStub;
 
   beforeEach((done) => {
     reqStub = sinon.stub(request, 'post');
@@ -32,25 +29,28 @@ describe('listTransactions', function () {
     done();
   });
 
-  it('calls kraken api twice', function (done) {
-    reqStub.yields(null, {ledger: {}});
+  it('calls kraken api twice', (done) => {
+    reqStub.yields(null, { ledger: {} });
 
-    kraken.listTransactions(null, function (err, result) {
+    kraken.listTransactions(null, function (err) {
+      if (err) {
+        return done(err);
+      }
       expect(reqStub.callCount).to.equal(2);
 
       const firstCall = reqStub.getCall(0);
       expect(firstCall.args[1]).to.equal('Ledgers');
-      expect(firstCall.args[2]).to.deep.equal({type: 'withdrawal', ofs: 0});
+      expect(firstCall.args[2]).to.deep.equal({ type: 'withdrawal', ofs: 0 });
 
       const secondCall = reqStub.getCall(1);
       expect(secondCall.args[1]).to.equal('Ledgers');
-      expect(secondCall.args[2]).to.deep.equal({type: 'deposit', ofs: 0});
+      expect(secondCall.args[2]).to.deep.equal({ type: 'deposit', ofs: 0 });
 
       done();
     });
   });
 
-  it('converts kraken api responses properly', function (done) {
+  it('converts kraken api responses properly', (done) => {
     /*
      * Mock response from the withdrawal Ledgers endpoint
      */
@@ -66,7 +66,7 @@ describe('listTransactions', function () {
     };
     const withdrawalApiResponse =
     {
-      ledger: {'LQ4LR7-6WL5O-Y4XDP3': withdrawalRawObject}
+      ledger: { 'LQ4LR7-6WL5O-Y4XDP3': withdrawalRawObject }
     };
 
     /*
@@ -85,7 +85,7 @@ describe('listTransactions', function () {
     };
     const depositApiResponse =
     {
-      ledger: {'G4HJR1-WWT7H-YH945H': depositRawObject}
+      ledger: { 'G4HJR1-WWT7H-YH945H': depositRawObject }
     };
 
     /*
@@ -112,29 +112,32 @@ describe('listTransactions', function () {
       }
     ];
 
-    const withdrawalReqStub = reqStub.withArgs(sinon.match.any, 'Ledgers', sinon.match({type: 'withdrawal'}));
+    const withdrawalReqStub = reqStub.withArgs(sinon.match.any, 'Ledgers', sinon.match({ type: 'withdrawal' }));
     withdrawalReqStub.onCall(0).yields(null, withdrawalApiResponse);
-    withdrawalReqStub.onCall(1).yields(null, {ledger: {}});
+    withdrawalReqStub.onCall(1).yields(null, { ledger: {} });
 
-    const depositReqStub = reqStub.withArgs(sinon.match.any, 'Ledgers', sinon.match({type: 'deposit'}));
+    const depositReqStub = reqStub.withArgs(sinon.match.any, 'Ledgers', sinon.match({ type: 'deposit' }));
     depositReqStub.onCall(0).yields(null, depositApiResponse);
-    depositReqStub.onCall(1).yields(null, {ledger: {}});
+    depositReqStub.onCall(1).yields(null, { ledger: {} });
 
     kraken.listTransactions(null, function (err, result) {
+      if (err) {
+        return done(err);
+      }
       expect(result).to.deep.equal(expectedConvertedResponse);
 
       done();
     });
   });
 
-  it('calls the API multiple times to get all transactions', function (done) {
+  it('calls the API multiple times to get all transactions', (done) => {
     /*
      * Generate responses to trigger multiple requests.
      * When testing, the Kraken API returned 50 ledger entries as the maximum, so we'll generate responses
      * that each return 50 entries, and then one (the last) which returns fewer than 50
      */
     // withdrawal call returns an empty list, we only test the deposits here
-    reqStub.withArgs(sinon.match.any, 'Ledgers', sinon.match({type: 'withdrawal'})).yields(null, {ledger: {}});
+    reqStub.withArgs(sinon.match.any, 'Ledgers', sinon.match({ type: 'withdrawal' })).yields(null, { ledger: {} });
 
     const depositRawObject =
     {
@@ -147,20 +150,20 @@ describe('listTransactions', function () {
       fee: '0.0000000000',
       balance: '8.3684639100'
     };
-    const depositReqStub = reqStub.withArgs(sinon.match.any, 'Ledgers', sinon.match({type: 'deposit'}));
+    const depositReqStub = reqStub.withArgs(sinon.match.any, 'Ledgers', sinon.match({ type: 'deposit' }));
 
     /*
     * Create 4 responses that 3 of them return max entries last one returns empty ledger
     * to stop the requests
     */
     for (let i = 0; i < 4; i++) {
-      const response = {ledger: {}};
+      const response = { ledger: {} };
 
       if (i < 3) {
         for (let n = 0; n < 50; n++) {
           const id = '123456-78901-00' + i + '0' + n;
           const refid = '1234567-123456-00' + i + '0' + n;
-          response.ledger[id] = _.defaults({refid}, depositRawObject);
+          response.ledger[id] = _.defaults({ refid }, depositRawObject);
         }
       }
 
@@ -168,7 +171,7 @@ describe('listTransactions', function () {
     }
 
     // Last response that returns just a empty object
-    depositReqStub.onCall(3).yields(null, {ledger: {}});
+    depositReqStub.onCall(3).yields(null, { ledger: {} });
 
     /*
      * Call the API and expect to get (50*3 + 1) = 151 deposit transactions back
@@ -182,19 +185,19 @@ describe('listTransactions', function () {
       // 1 withdrawal call, 4 deposit calls
       expect(reqStub.callCount).to.equal(5);
       expect(reqStub.firstCall.args[1]).to.equal('Ledgers');
-      expect(reqStub.firstCall.args[2]).to.deep.equal({type: 'withdrawal', ofs: 0});
-      [1, 2, 3, 4].forEach(i => {
+      expect(reqStub.firstCall.args[2]).to.deep.equal({ type: 'withdrawal', ofs: 0 });
+      [ 1, 2, 3, 4 ].forEach(i => {
         expect(reqStub.getCall(i).args[1]).to.equal('Ledgers');
         const offset = (i-1)*50;
-        expect(reqStub.getCall(i).args[2]).to.deep.equal({type: 'deposit', ofs: offset});
+        expect(reqStub.getCall(i).args[2]).to.deep.equal({ type: 'deposit', ofs: offset });
       });
 
       done();
     });
   });
 
-  it('queries ledger entries after the one in the latestTransaction argument', function (done) {
-    reqStub.yields(null, {ledger: {}});
+  it('queries ledger entries after the one in the latestTransaction argument', (done) => {
+    reqStub.yields(null, { ledger: {} });
 
     const latestTransaction =
     {
@@ -216,7 +219,7 @@ describe('listTransactions', function () {
       }
     };
 
-    return kraken.listTransactions(latestTransaction, function(err, result) {
+    return kraken.listTransactions(latestTransaction, function (err, result) {
       expect(err).to.equal(null);
 
       expect(result).to.have.lengthOf(0);
@@ -230,14 +233,13 @@ describe('listTransactions', function () {
     });
   });
 
-  it('propagates kraken api error properly', function (done) {
+  it('propagates kraken api error properly', (done) => {
     const someError = new Error('sth broke');
     reqStub.onCall(1).yields(someError);
-    reqStub.yields(null, {ledger: {}});
+    reqStub.yields(null, { ledger: {} });
 
-    kraken.listTransactions(null, function (err, result) {
+    kraken.listTransactions(null, function (err) {
       expect(err).to.equal(someError);
-
       done();
     });
   });

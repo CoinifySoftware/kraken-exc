@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 const sinon = require('sinon'),
   request = require('request'),
   expect = require('chai').expect,
@@ -7,8 +7,8 @@ const sinon = require('sinon'),
 
 describe('#getTicker', function () {
   const kraken = new Kraken({
-    key: "apikey",
-    secret: "apisecret",
+    key: 'apikey',
+    secret: 'apisecret',
     otp: '2FA'
   });
 
@@ -17,47 +17,47 @@ describe('#getTicker', function () {
     error: [],
     result: {
       XXBTZEUR: {
-        a: ['508.00000', '3', '3.000'],
-        b: ['506.20000', '18', '18.000'],
-        c: ['507.99900', '0.05576195'],
-        v: ['2013.76979306', '4173.76106173'],
-        p: ['505.96555', '506.24916'],
-        t: [2756, 5473],
-        l: ['503.03200', '501.11000'],
-        h: ['509.92000', '509.92000'],
+        a: [ '508.00000', '3', '3.000' ],
+        b: [ '506.20000', '18', '18.000' ],
+        c: [ '507.99900', '0.05576195' ],
+        v: [ '2013.76979306', '4173.76106173' ],
+        p: [ '505.96555', '506.24916' ],
+        t: [ 2756, 5473 ],
+        l: [ '503.03200', '501.11000' ],
+        h: [ '509.92000', '509.92000' ],
         o: '507.90800'
       },
       XXBTZUSD: {
-        a: ['508.00000', '3', '3.000'],
-        b: ['506.20000', '18', '18.000'],
-        c: ['507.99900', '0.05576195'],
-        v: ['2013.76979306', '4173.76106173'],
-        p: ['505.96555', '506.24916'],
-        t: [2756, 5473],
-        l: ['503.03200', '501.11000'],
-        h: ['509.92000', '509.92000'],
+        a: [ '508.00000', '3', '3.000' ],
+        b: [ '506.20000', '18', '18.000' ],
+        c: [ '507.99900', '0.05576195' ],
+        v: [ '2013.76979306', '4173.76106173' ],
+        p: [ '505.96555', '506.24916' ],
+        t: [ 2756, 5473 ],
+        l: [ '503.03200', '501.11000' ],
+        h: [ '509.92000', '509.92000' ],
         o: '507.90800'
       },
       BSVEUR: {
-        a: ['508.00000', '3', '3.000'],
-        b: ['506.20000', '18', '18.000'],
-        c: ['507.99900', '0.05576195'],
-        v: ['2013.76979306', '4173.76106173'],
-        p: ['505.96555', '506.24916'],
-        t: [2756, 5473],
-        l: ['503.03200', '501.11000'],
-        h: ['509.92000', '509.92000'],
+        a: [ '508.00000', '3', '3.000' ],
+        b: [ '506.20000', '18', '18.000' ],
+        c: [ '507.99900', '0.05576195' ],
+        v: [ '2013.76979306', '4173.76106173' ],
+        p: [ '505.96555', '506.24916' ],
+        t: [ 2756, 5473 ],
+        l: [ '503.03200', '501.11000' ],
+        h: [ '509.92000', '509.92000' ],
         o: '507.90800'
       },
       BSVUSD: {
-        a: ['508.00000', '3', '3.000'],
-        b: ['506.20000', '18', '18.000'],
-        c: ['507.99900', '0.05576195'],
-        v: ['2013.76979306', '4173.76106173'],
-        p: ['505.96555', '506.24916'],
-        t: [2756, 5473],
-        l: ['503.03200', '501.11000'],
-        h: ['509.92000', '509.92000'],
+        a: [ '508.00000', '3', '3.000' ],
+        b: [ '506.20000', '18', '18.000' ],
+        c: [ '507.99900', '0.05576195' ],
+        v: [ '2013.76979306', '4173.76106173' ],
+        p: [ '505.96555', '506.24916' ],
+        t: [ 2756, 5473 ],
+        l: [ '503.03200', '501.11000' ],
+        h: [ '509.92000', '509.92000' ],
         o: '507.90800'
       }
     }
@@ -85,7 +85,7 @@ describe('#getTicker', function () {
 
       expect(reqStub.calledOnce).to.equal(true);
       // Check input args
-      expect(reqStub.firstCall.args[0]).to.containSubset({form: {pair: 'XXBTZEUR'}, url: 'https://api.kraken.com/0/public/Ticker'});
+      expect(reqStub.firstCall.args[0]).to.containSubset({ form: { pair: 'XXBTZEUR' }, url: 'https://api.kraken.com/0/public/Ticker' });
 
       expect(result).to.be.an('Object');
 
@@ -120,7 +120,7 @@ describe('#getTicker', function () {
 
       expect(reqStub.calledOnce).to.equal(true);
       // Check input args
-      expect(reqStub.firstCall.args[0]).to.containSubset({form: {pair: 'XXBTZUSD'}, url: 'https://api.kraken.com/0/public/Ticker'});
+      expect(reqStub.firstCall.args[0]).to.containSubset({ form: { pair: 'XXBTZUSD' }, url: 'https://api.kraken.com/0/public/Ticker' });
 
       expect(result).to.be.an('Object');
 
@@ -138,7 +138,7 @@ describe('#getTicker', function () {
 
       expect(reqStub.calledOnce).to.equal(true);
       // Check input args
-      expect(reqStub.firstCall.args[0]).to.containSubset({form: {pair: 'BSVEUR'}, url: 'https://api.kraken.com/0/public/Ticker'});
+      expect(reqStub.firstCall.args[0]).to.containSubset({ form: { pair: 'BSVEUR' }, url: 'https://api.kraken.com/0/public/Ticker' });
 
       expect(result).to.be.an('Object');
 
@@ -153,10 +153,10 @@ describe('#getTicker', function () {
       if (err) {
         return done(err);
       }
-      
+
       expect(reqStub.calledOnce).to.equal(true);
       // Check input args
-      expect(reqStub.firstCall.args[0]).to.containSubset({form: {pair: 'BSVUSD'}, url: 'https://api.kraken.com/0/public/Ticker'});
+      expect(reqStub.firstCall.args[0]).to.containSubset({ form: { pair: 'BSVUSD' }, url: 'https://api.kraken.com/0/public/Ticker' });
 
       expect(result).to.be.an('Object');
 

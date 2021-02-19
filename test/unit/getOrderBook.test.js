@@ -1,14 +1,13 @@
-"use strict";
-const sinon = require('sinon'),
-  request = require('request'),
-  expect = require('chai').expect,
-  Kraken = require('../../index.js'),
-  Error = require('../../lib/ErrorHelper.js');
+const sinon = require('sinon');
+const request = require('request');
+const expect = require('chai').expect;
+const Kraken = require('../../index.js');
+const Error = require('../../lib/ErrorHelper.js');
 
 describe('#getOrderBook', function () {
   const kraken = new Kraken({
-    key: "apikey",
-    secret: "apisecret",
+    key: 'apikey',
+    secret: 'apisecret',
     otp: '2FA'
   });
 
@@ -16,16 +15,16 @@ describe('#getOrderBook', function () {
   {
     error: [],
     result: {
-      'XXBTZEUR': {
+      XXBTZEUR: {
         bids: [
-          ['541.19000', '1.933', 1470576586],
-          ['541.19600', '4.275', 1470576476],
-          ['541.77000', '4.000', 1470576451]
+          [ '541.19000', '1.933', 1470576586 ],
+          [ '541.19600', '4.275', 1470576476 ],
+          [ '541.77000', '4.000', 1470576451 ]
         ],
         asks: [
-          ['540.00900', '3.044', 1470576289],
-          ['540.00200', '10.814', 1470575461],
-          ['540.00000', '19.430', 1470574993]
+          [ '540.00900', '3.044', 1470576289 ],
+          [ '540.00200', '10.814', 1470575461 ],
+          [ '540.00000', '19.430', 1470574993 ]
         ]
       }
     }
@@ -38,10 +37,10 @@ describe('#getOrderBook', function () {
     result: {
       'BTC\/USD': {
         bids: [
-          ['541.19000', '1.933', 1470576586]
+          [ '541.19000', '1.933', 1470576586 ]
         ],
         asks: [
-          ['540.00900', '3.044', 1470576289]
+          [ '540.00900', '3.044', 1470576289 ]
         ]
       }
     }
@@ -53,8 +52,8 @@ describe('#getOrderBook', function () {
     error: [],
     result: {
       'what-is-this-pair?': {
-        bids:[],
-        asks:[]
+        bids: [],
+        asks: []
       }
     }
   };
@@ -75,9 +74,9 @@ describe('#getOrderBook', function () {
   it('should return error when currency pair is not found in response', function (done) {
     reqStub.yields(null, {}, JSON.stringify(getOrderBookInvalidResponse));
 
-    kraken.getOrderBook('BTC', 'USD', function (err, result) {
+    kraken.getOrderBook('BTC', 'USD', function (err) {
       if (err) {
-        expect(err.message).to.equal('Currency pair: XXBTZUSD is not in response')
+        expect(err.message).to.equal('Currency pair: XXBTZUSD is not in response');
         return done();
       }
 
@@ -121,7 +120,7 @@ describe('#getOrderBook', function () {
 
       expect(reqStub.calledOnce).to.equal(true);
       // Check input args
-      expect(reqStub.firstCall.args[0]).to.containSubset({form: {pair: 'XXBTZEUR'}, url: 'https://api.kraken.com/0/public/Depth'});
+      expect(reqStub.firstCall.args[0]).to.containSubset({ form: { pair: 'XXBTZEUR' }, url: 'https://api.kraken.com/0/public/Depth' });
 
       expect(result).to.be.an('Object');
 

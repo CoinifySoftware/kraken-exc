@@ -12,12 +12,11 @@ This document will guide you through a list of the endpoints that this module ut
 ### Initialization
 
 ```js
-var Kraken = require('kraken-exc');
+const Kraken = require('kraken-exc');
 
-var kraken = new Kraken({
+const kraken = new Kraken({
     key: 'your_api_key',
-    secret: 'your_api_secret',
-    otp: 'your_otp_password'
+    secret: 'your_api_secret'
   }
 );
 ```
@@ -90,10 +89,6 @@ kraken.getTicker('BTC', 'USD', function(err, ticker) {
 }
 ```
 
-
-
-
-
 #### Order Book
 Returns the current order book of Kraken in a custom organized object.
 ##### Input parameters
@@ -101,6 +96,7 @@ Returns the current order book of Kraken in a custom organized object.
 
 `quoteCurrency`:  The currency to determine the price quoteCurrency/baseCurrency
 ##### Example call
+
 ```js
 kraken.getOrderBook('BTC', 'USD', function (err, data) {
   if (err) {
@@ -109,6 +105,7 @@ kraken.getOrderBook('BTC', 'USD', function (err, data) {
     console.log(data);
   }
 });
+
 ```
 ##### Response on success
 ```js
@@ -219,7 +216,7 @@ you risk to go over the requests limit and getting your API IP blocked from Krak
 An object that contains data about the latest trade fetched onwards from which to search for transactions. Must have at least the following structure:
 
 ```js
-var latestTransaction = {
+const latestTransaction = {
   raw: {
     id: 10170901,
     datetime: '2015-12-19T14:55:57.000Z' // Obligatory. This is ISO-8601 format, but can also be UNIX timestamp or YYY-mm-dd format
