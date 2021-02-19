@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 const rewire = require('rewire'),
   expect = require('chai').expect;
 

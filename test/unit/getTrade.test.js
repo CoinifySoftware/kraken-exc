@@ -1,14 +1,14 @@
-"use strict";
+'use strict';
 const sinon = require('sinon'),
   request = require('request'),
   expect = require('chai').expect,
   Kraken = require('../../index.js'),
   Error = require('../../lib/ErrorHelper.js');
 
-describe('#getTrade', function() {
+describe('#getTrade', function () {
   const kraken = new Kraken({
-    key: "apikey",
-    secret: "apisecret",
+    key: 'apikey',
+    secret: 'apisecret',
     otp: '2FA'
   });
 
@@ -17,7 +17,7 @@ describe('#getTrade', function() {
   beforeEach((done) => {
     trade = {
       raw: {
-        txid: ['TEBCPN-YCQ7U-PQSUJF'],
+        txid: [ 'TEBCPN-YCQ7U-PQSUJF' ],
         orderType: 'sell',
         createTime: '2015-09-03 11:40:46'
       }
@@ -25,7 +25,7 @@ describe('#getTrade', function() {
 
     openOrder = {
       raw: {
-        txid: ['OEX7R7-ID6ZP-KATRCD'],
+        txid: [ 'OEX7R7-ID6ZP-KATRCD' ],
         orderType: 'sell',
         createTime: '2015-09-03 11:40:46'
       }
@@ -33,7 +33,7 @@ describe('#getTrade', function() {
 
     closedOrder = {
       raw: {
-        txid: ['OEX7R7-ID6ZP-KATRCC'],
+        txid: [ 'OEX7R7-ID6ZP-KATRCC' ],
         orderType: 'sell',
         createTime: '2015-09-03 11:40:46'
       }
@@ -96,7 +96,7 @@ describe('#getTrade', function() {
         cost: '0.00000',
         fee: '0.00000'
       }
-    }
+    };
 
     getTradeResponse = {
       error: [],
@@ -114,11 +114,11 @@ describe('#getTrade', function() {
 
   /* =================   Testing response data consistency   ================= */
 
-  it('gets the requested SELL trade', function(done) {
+  it('gets the requested SELL trade', function (done) {
     getTradeResponse.result = tradeValues;
     reqStub.yields(null, {}, JSON.stringify(getTradeResponse));
 
-    kraken.getTrade(trade, function(err, result) {
+    kraken.getTrade(trade, function (err, result) {
       if (err) {
         return done(err);
       }
@@ -150,12 +150,12 @@ describe('#getTrade', function() {
     });
   });
 
-  it('gets the requested BUY trade', function(done) {
+  it('gets the requested BUY trade', function (done) {
     getTradeResponse.result = tradeValues;
     getTradeResponse.result[trade.raw.txid[0]].type = 'buy';
     reqStub.yields(null, {}, JSON.stringify(getTradeResponse));
 
-    kraken.getTrade(trade, function(err, result) {
+    kraken.getTrade(trade, function (err, result) {
       if (err) {
         return done(err);
       }
@@ -182,15 +182,15 @@ describe('#getTrade', function() {
     });
   });
 
-  it('gets the requested SELL open order', function(done) {
+  it('gets the requested SELL open order', function (done) {
     getTradeResponse.result = openOrderValues;
     getTradeResponse.result[openOrder.raw.txid[0]].descr.type = 'sell';
     reqStub.onFirstCall().yields(null, {}, JSON.stringify({
-      error: ['EOrder:Invalid order']
+      error: [ 'EOrder:Invalid order' ]
     }));
     reqStub.onSecondCall().yields(null, {}, JSON.stringify(getTradeResponse));
 
-    kraken.getTrade(openOrder, function(err, result) {
+    kraken.getTrade(openOrder, function (err, result) {
       if (err) {
         return done(err);
       }
@@ -222,14 +222,14 @@ describe('#getTrade', function() {
     });
   });
 
-  it('gets the requested BUY open order', function(done) {
+  it('gets the requested BUY open order', function (done) {
     getTradeResponse.result = openOrderValues;
     reqStub.onFirstCall().yields(null, {}, JSON.stringify({
-      error: ['EOrder:Invalid order']
+      error: [ 'EOrder:Invalid order' ]
     }));
     reqStub.onSecondCall().yields(null, {}, JSON.stringify(getTradeResponse));
 
-    kraken.getTrade(openOrder, function(err, result) {
+    kraken.getTrade(openOrder, function (err, result) {
       if (err) {
         return done(err);
       }
@@ -256,15 +256,15 @@ describe('#getTrade', function() {
     });
   });
 
-  it('gets the requested SELL closed order', function(done) {
+  it('gets the requested SELL closed order', function (done) {
     getTradeResponse.result = closedOrderValues;
     getTradeResponse.result[closedOrder.raw.txid[0]].descr.type = 'sell';
     reqStub.onFirstCall().yields(null, {}, JSON.stringify({
-      error: ['EOrder:Invalid order']
+      error: [ 'EOrder:Invalid order' ]
     }));
     reqStub.onSecondCall().yields(null, {}, JSON.stringify(getTradeResponse));
 
-    kraken.getTrade(closedOrder, function(err, result) {
+    kraken.getTrade(closedOrder, function (err, result) {
       if (err) {
         return done(err);
       }
@@ -296,14 +296,14 @@ describe('#getTrade', function() {
     });
   });
 
-  it('gets the requested BUY closed order', function(done) {
+  it('gets the requested BUY closed order', function (done) {
     getTradeResponse.result = closedOrderValues;
     reqStub.onFirstCall().yields(null, {}, JSON.stringify({
-      error: ['EOrder:Invalid order']
+      error: [ 'EOrder:Invalid order' ]
     }));
     reqStub.onSecondCall().yields(null, {}, JSON.stringify(getTradeResponse));
 
-    kraken.getTrade(closedOrder, function(err, result) {
+    kraken.getTrade(closedOrder, function (err, result) {
       if (err) {
         return done(err);
       }
@@ -331,10 +331,10 @@ describe('#getTrade', function() {
   });
   /* =================   Testing wrong input to the endpoint   ================= */
 
-  it('returns an error about missing required trade object input argument', function(done) {
+  it('returns an error about missing required trade object input argument', function (done) {
     reqStub.yields(null, {}, JSON.stringify(getTradeResponse));
 
-    kraken.getTrade(null, function(err, result) {
+    kraken.getTrade(null, function (err, result) {
       expect(reqStub.calledOnce).to.equal(false);
       expect(result).to.equal(undefined);
 
@@ -346,10 +346,10 @@ describe('#getTrade', function() {
     });
   });
 
-  it('returns an error about missing required trade.raw property input argument', function(done) {
+  it('returns an error about missing required trade.raw property input argument', function (done) {
     delete trade.raw;
 
-    kraken.getTrade(trade, function(err, result) {
+    kraken.getTrade(trade, function (err, result) {
       expect(reqStub.notCalled).to.equal(true);
       expect(result).to.equal(undefined);
 
@@ -363,7 +363,7 @@ describe('#getTrade', function() {
 
   it('should return error if response from kraken exchange is empty for open order', (done) => {
     reqStub.onFirstCall().yields(null, {}, JSON.stringify({
-      error: ['EOrder:Invalid order']
+      error: [ 'EOrder:Invalid order' ]
     }));
     reqStub.onSecondCall().yields(null, {}, JSON.stringify(getTradeResponse));
 
@@ -372,17 +372,17 @@ describe('#getTrade', function() {
       expect(err.code).to.equal(Error.EXCHANGE_SERVER_ERROR);
       expect(err.cause).to.equal(undefined);
       done();
-    })
+    });
   });
 
   it('should return state \'cancelled\' if order has been cancelled', (done) => {
     getTradeResponse.result = cancelledOrderValues;
     reqStub.onFirstCall().yields(null, {}, JSON.stringify({
-      error: ['EOrder:Invalid order']
+      error: [ 'EOrder:Invalid order' ]
     }));
     reqStub.onSecondCall().yields(null, {}, JSON.stringify(getTradeResponse));
 
-    kraken.getTrade(openOrder, function(err, result) {
+    kraken.getTrade(openOrder, function (err, result) {
       if (err) {
         return done(err);
       }

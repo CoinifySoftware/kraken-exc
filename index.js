@@ -1,24 +1,21 @@
-"use strict";
-const _ = require('lodash'),
-  Currency = require('./lib/CurrencyHelper'),
-  Error = require('./lib/ErrorHelper'),
-  Request = require('./lib/RequestHelper'),
-  apiResponseConverter = require('./lib/ApiResponseConverter'),
-  consoleLogLevel = require('console-log-level'),
-  constants = require('./lib/constants');
+const _ = require('lodash');
+const coinifyCurrency = require('@coinify/currency');
+const Error = require('./lib/ErrorHelper');
+const Request = require('./lib/RequestHelper');
+const { convertFromKrakenCurrencyCode, convertToKrakenCurrencyCode, convertFromKrakenTransaction } = require('./lib/ApiResponseConverter');
+const consoleLogLevel = require('console-log-level');
+const constants = require('./lib/constants');
 
-/* =================   Constructor   ================= */
-
-const Kraken = function(settings) {
+const Kraken = function (settings) {
   this.key = settings.key;
   this.secret = settings.secret;
   this.otp = settings.otp;
   this.host = settings.host || constants.HOST;
   this.timeout = settings.timeout || constants.REQUEST_TIMEOUT;
-  this.logger = settings.logger || consoleLogLevel({level: 'debug'});
+  this.logger = settings.logger || consoleLogLevel({ level: process.env.LOG_LEVEL || 'debug' });
 
   const normalizedSupportedCurrencies = settings.supportedCurrencies || constants.DEFAULT_SUPPORTED_CURRENCIES;
-  this.supportedCurrencies = normalizedSupportedCurrencies.map(apiResponseConverter.convertToKrakenCurrencyCode);
+  this.supportedCurrencies = normalizedSupportedCurrencies.map(convertToKrakenCurrencyCode);
 };
 
 /* =================   API endpoints exposed methods   ================= */
@@ -34,7 +31,7 @@ function validateCurrenciesConstructPair(baseCurrency, quoteCurrency) {
   baseCurrency = baseCurrency.toUpperCase();
   quoteCurrency = quoteCurrency.toUpperCase();
 
-  if (!_.includes(['BTC', 'BSV'], baseCurrency) || !_.includes(['USD', 'EUR'], quoteCurrency)) {
+  if (!_.includes([ 'BTC', 'BSV' ], baseCurrency) || !_.includes([ 'USD', 'EUR' ], quoteCurrency)) {
     return {
       error: Error.create('Kraken only supports BTC or BSV as base currency and USD or EUR as quote currency.',
         Error.MODULE_ERROR, null)
@@ -42,8 +39,8 @@ function validateCurrenciesConstructPair(baseCurrency, quoteCurrency) {
   }
 
   /* Kraken returns XBT as BTC. It accepts both variations, but returns XBT only. */
-  const baseCurrencyKraken = (baseCurrency === 'BTC') ? 'XBT' : baseCurrency,
-    pair = (baseCurrency === 'BTC') ? `X${baseCurrencyKraken}Z${quoteCurrency}` : `${baseCurrencyKraken}${quoteCurrency}`;
+  const baseCurrencyKraken = baseCurrency === 'BTC' ? 'XBT' : baseCurrency,
+    pair = baseCurrency === 'BTC' ? `X${baseCurrencyKraken}Z${quoteCurrency}` : `${baseCurrencyKraken}${quoteCurrency}`;
 
   return {
     baseCurrency,
@@ -79,7 +76,7 @@ function validateCurrenciesConstructPair(baseCurrency, quoteCurrency) {
  *             ]
  *           }
  */
-Kraken.prototype.getOrderBook = function(baseCurrency, quoteCurrency, callback) {
+Kraken.prototype.getOrderBook = function (baseCurrency, quoteCurrency, callback) {
   const currencies = validateCurrenciesConstructPair(baseCurrency, quoteCurrency);
   if (currencies.error) {
     return callback(currencies.error);
@@ -87,19 +84,19 @@ Kraken.prototype.getOrderBook = function(baseCurrency, quoteCurrency, callback) 
 
   Request.post(this, 'Depth', {
     pair: currencies.pair
-  }, function(err, res) {
+  }, (err, res) => {
     if (err) {
       return callback(err);
     }
 
     // This happened, so lets fix it for kraken
     if (res['BTC/USD']) {
-      res['XXBTZUSD'] = res['BTC/USD'];
+      res.XXBTZUSD = res['BTC/USD'];
     }
 
     if (!res[currencies.pair]) {
       return callback(Error.create(`Currency pair: ${currencies.pair} is not in response`,
-      Error.MODULE_ERROR, null));
+        Error.MODULE_ERROR, null));
     }
 
     /* Declare the orderBook object with the currency pair */
@@ -112,8 +109,8 @@ Kraken.prototype.getOrderBook = function(baseCurrency, quoteCurrency, callback) 
     const convertRawEntry = function convertRawEntry(entry) {
       return {
         price: parseFloat(entry[0]),
-        baseAmount: Currency.toSmallestSubunit(parseFloat(entry[1]), currencies.baseCurrency)
-      }
+        baseAmount: coinifyCurrency.toSmallestSubunit(parseFloat(entry[1]), currencies.baseCurrency)
+      };
     };
     const rawBids = res[currencies.pair].bids || [];
     const rawAsks = res[currencies.pair].asks || [];
@@ -144,7 +141,7 @@ Kraken.prototype.getOrderBook = function(baseCurrency, quoteCurrency, callback) 
  *              volume24Hours: 1234567890 // 12.3456789 BTC
  *             }
  */
-Kraken.prototype.getTicker = function(baseCurrency, quoteCurrency, callback) {
+Kraken.prototype.getTicker = function (baseCurrency, quoteCurrency, callback) {
   const currencies = validateCurrenciesConstructPair(baseCurrency, quoteCurrency);
   if (currencies.error) {
     return callback(currencies.error);
@@ -184,7 +181,7 @@ Kraken.prototype.getTicker = function(baseCurrency, quoteCurrency, callback) {
       high24Hours: parseFloat(result.h[1]),
       low24Hours: parseFloat(result.l[1]),
       vwap24Hours: parseFloat(result.p[1]),
-      volume24Hours: Currency.toSmallestSubunit(result.v[1], currencies.baseCurrency)
+      volume24Hours: coinifyCurrency.toSmallestSubunit(result.v[1], currencies.baseCurrency)
     });
   });
 };
@@ -206,43 +203,41 @@ Kraken.prototype.getTicker = function(baseCurrency, quoteCurrency, callback) {
  *                              }
  *                      }
  */
-Kraken.prototype.getBalance = function(callback) {
-  const self = this;
+Kraken.prototype.getBalance = function (callback) {
   /* Firstly, get the total balance values */
-  Request.post(self, 'Balance', null, function(err, resBalance) {
+  Request.post(this, 'Balance', null, (err, resBalance) => {
     if (err) {
       return callback(err);
     }
 
     /* Secondly, get the open orders */
-    Request.post(self, 'OpenOrders', {}, function(err, resOrders) {
+    Request.post(this, 'OpenOrders', {}, (err, resOrders) => {
       if (err) {
         return callback(err);
       }
 
       const total = {
-        'USD': resBalance.ZUSD ? Currency.toSmallestSubunit(resBalance.ZUSD, 'USD') : 0,
-        'EUR': resBalance.ZEUR ? Currency.toSmallestSubunit(resBalance.ZEUR, 'EUR') : 0,
-        'BTC': resBalance.XXBT ? Currency.toSmallestSubunit(resBalance.XXBT, 'BTC') : 0,
-        'BSV': resBalance.BSV ? Currency.toSmallestSubunit(resBalance.BSV, 'BSV') : 0
+        USD: resBalance.ZUSD ? coinifyCurrency.toSmallestSubunit(resBalance.ZUSD, 'USD') : 0,
+        EUR: resBalance.ZEUR ? coinifyCurrency.toSmallestSubunit(resBalance.ZEUR, 'EUR') : 0,
+        BTC: resBalance.XXBT ? coinifyCurrency.toSmallestSubunit(resBalance.XXBT, 'BTC') : 0,
+        BSV: resBalance.BSV ? coinifyCurrency.toSmallestSubunit(resBalance.BSV, 'BSV') : 0
       };
 
       const toSubtractFromTotal = {
-        'XBT': 0,
-        'EUR': 0,
-        'USD': 0,
-        'BSV': 0
+        BTC: 0,
+        EUR: 0,
+        USD: 0,
+        BSV: 0
       };
-      let baseCurrency, quoteCurrency, baseCurrencyToConvert;
 
       /*
        * Loop through the open orders (reserved) and accumulate amounts to be subtracted from the total balance, so
        * that we calculate how much is the available balance
        */
       _.forEach(resOrders.open, (order) => {
-        baseCurrency = order.descr.pair.slice(0, 3);
-        quoteCurrency = order.descr.pair.slice(3);
-        baseCurrencyToConvert = baseCurrency == 'XBT' ? 'BTC' : baseCurrency;
+        const baseCurrency = convertFromKrakenCurrencyCode(order.descr.pair.slice(0, 3));
+        const quoteCurrency = order.descr.pair.slice(3);
+
         /*
          * The crypto currency is always the base and fiat is the quote in the orders. Therefore, for SELL orders we
          * want to see the volume we are selling (the `vol` property) and reserve it. And for BUY orders we want to see
@@ -250,19 +245,19 @@ Kraken.prototype.getBalance = function(callback) {
          */
         switch (order.descr.type) {
           case 'sell':
-            toSubtractFromTotal[baseCurrency] += Currency.toSmallestSubunit(order.vol, baseCurrencyToConvert);
+            toSubtractFromTotal[baseCurrency] += coinifyCurrency.toSmallestSubunit(order.vol, baseCurrency);
             break;
           case 'buy':
-            toSubtractFromTotal[quoteCurrency] += Currency.toSmallestSubunit(order.descr.price, baseCurrency);
+            toSubtractFromTotal[quoteCurrency] +=coinifyCurrency.toSmallestSubunit(order.descr.price, quoteCurrency);
             break;
         }
       });
 
       const available = {
-        'USD': total.USD - toSubtractFromTotal.USD,
-        'EUR': total.EUR - toSubtractFromTotal.EUR,
-        'BTC': total.BTC - toSubtractFromTotal.XBT,
-        'BSV': total.BSV - toSubtractFromTotal.BSV
+        USD: total.USD - toSubtractFromTotal.USD,
+        EUR: total.EUR - toSubtractFromTotal.EUR,
+        BTC: total.BTC - toSubtractFromTotal.BTC,
+        BSV: total.BSV - toSubtractFromTotal.BSV
       };
 
       return callback(null, {
@@ -293,14 +288,14 @@ Kraken.prototype.getBalance = function(callback) {
  *    state: 'closed',
  *    baseAmount: -200000000, // Sold 2.00000000 BTC...
  *    quoteAmount: 74526,     // ... for 745.26 USD
- *    baseCurrency: 'BTC'     // Currency of the baseAmount
- *    quoteCurrency: 'USD'    // Currency of the quoteAmount
+ *    baseCurrency: 'BTC'     // coinifyCurrency of the baseAmount
+ *    quoteCurrency: 'USD'    // coinifyCurrency of the quoteAmount
  *    feeAmount: 11,          // We paid 0.11 USD to the exchange as commission for the order
- *    feeCurrency: 'USD',     // Currency of the feeAmount
+ *    feeCurrency: 'USD',     // coinifyCurrency of the feeAmount
  *    raw: {...},             // Exchange-specific object
  *  }
  */
-Kraken.prototype.getTrade = function(tradeToQuery, callback) {
+Kraken.prototype.getTrade = function (tradeToQuery, callback) {
   if (!tradeToQuery || !callback) {
     return callback(Error.create('Trade object is a required parameter.', Error.MODULE_ERROR, null));
   }
@@ -310,20 +305,18 @@ Kraken.prototype.getTrade = function(tradeToQuery, callback) {
 
   const txid = getTransactionIdFromTrade(tradeToQuery);
 
-  const self = this;
-
-  Request.post(self, 'QueryTrades', {
+  Request.post(this, 'QueryTrades', {
     txid
-  }, function(err, resTrade) {
+  }, (err, resTrade) => {
     /*
      * 'QueryTrades' returns only the 'closed' Trades, whereas we want to check for trades in both 'closed' and 'open'
      * "Invalid order" error means tha provided 'txid' is of non-existent Trade - therefore check if it's still an
      * 'open' order.
      */
     if (err && err.errorMessages && _.find(err.errorMessages, msg => msg === 'EOrder:Invalid order')) {
-      Request.post(self, 'QueryOrders', {
+      Request.post(this, 'QueryOrders', {
         txid
-      }, function(err, resOrder) {
+      }, (err, resOrder) => {
         if (err) {
           return callback(err);
         }
@@ -357,7 +350,7 @@ Kraken.prototype.getTrade = function(tradeToQuery, callback) {
        *
        * { 'TEBCPN-YCQ7U-PQSUJF':               // ID of the Trade that we are querying
        *    {
-       *      pair: 'XXBTZEUR',                 // Currency pair of the Trade: 'X<baseCurrency>Z<quoteCurrency>'
+       *      pair: 'XXBTZEUR',                 // coinifyCurrency pair of the Trade: 'X<baseCurrency>Z<quoteCurrency>'
        *      type: 'sell',                     // type of the trade (sell/buy)
        *      ordertype: 'market',              // type of the order (market/limit)
        *      price: '507.00000',               // the price it's been sold/bought for, denominated in quoteCurrency
@@ -393,21 +386,20 @@ function getTransactionIdFromTrade(trade) {
  * That is why an `entityType` is passed as an argument and throughout the function body, different values are picked
  * from different sub-objects, for `!isTrade` (non-trade) response data.
  *
- * @param {object}  responseData  The response object itself
+ * @param {object}  responseData  The response object itthis
  * @param {string}  entityType    The type: 'trade' or 'order'
  * @param {string}  tradeId       The trade ID
  * @returns See return result of getTrade() endpoint
  */
 function constructTradeObject(responseData, entityType, tradeId) {
-  const isTrade = entityType == 'trade' // TRUE if it's a Trade, FALSE if it's an Open Order
-    ,
-    tradeValues = entityType == 'trade' ? responseData[tradeId] : responseData[tradeId].descr;
+  const isTrade = entityType === 'trade', // TRUE if it's a Trade, FALSE if it's an Open Order
+    tradeValues = entityType === 'trade' ? responseData[tradeId] : responseData[tradeId].descr;
 
-  let baseCurrency = isTrade ? tradeValues.pair.slice(1, 4) : tradeValues.pair.slice(0, 3),
-    quoteCurrency = isTrade ? tradeValues.pair.slice(5) : tradeValues.pair.slice(3);
+  let baseCurrency = isTrade ? tradeValues.pair.slice(1, 4) : tradeValues.pair.slice(0, 3);
+  const quoteCurrency = isTrade ? tradeValues.pair.slice(5) : tradeValues.pair.slice(3);
   baseCurrency = baseCurrency === 'XBT' ? 'BTC' : baseCurrency;
 
-  const baseAmount = Currency.toSmallestSubunit(parseFloat(responseData[tradeId].vol), baseCurrency);
+  const baseAmount = coinifyCurrency.toSmallestSubunit(parseFloat(responseData[tradeId].vol), baseCurrency);
 
   let state = isTrade ? 'closed' : responseData[tradeId].status;
 
@@ -420,16 +412,16 @@ function constructTradeObject(responseData, entityType, tradeId) {
   let quoteAmount = null;
   let feeAmount = null;
   if (state !== 'open') {
-    quoteAmount = Currency.toSmallestSubunit(parseFloat(responseData[tradeId].cost), quoteCurrency);
-    quoteAmount = tradeValues.type == constants.TYPE_BUY_ORDER ? -quoteAmount : quoteAmount;
-    feeAmount = Currency.toSmallestSubunit(parseFloat(responseData[tradeId].fee), quoteCurrency);
+    quoteAmount = coinifyCurrency.toSmallestSubunit(parseFloat(responseData[tradeId].cost), quoteCurrency);
+    quoteAmount = tradeValues.type === constants.TYPE_BUY_ORDER ? -quoteAmount : quoteAmount;
+    feeAmount = coinifyCurrency.toSmallestSubunit(parseFloat(responseData[tradeId].fee), quoteCurrency);
   }
 
   return {
     externalId: tradeId,
     type: tradeValues.ordertype,
     state,
-    baseAmount: tradeValues.type == constants.TYPE_SELL_ORDER ? -baseAmount : baseAmount,
+    baseAmount: tradeValues.type === constants.TYPE_SELL_ORDER ? -baseAmount : baseAmount,
     quoteAmount,
     baseCurrency,
     quoteCurrency,
@@ -449,27 +441,25 @@ function constructTradeObject(responseData, entityType, tradeId) {
  *                                          a raw.time attribute which represents a unix timestamp in seconds
  * @param {function}    callback            Returns the found transactions, sorted by earliest first
  */
-Kraken.prototype.listTransactions = function(latestTransaction, callback) {
+Kraken.prototype.listTransactions = function (latestTransaction, callback) {
   // Allow for listTransactions(callback) shorthand
   if (typeof latestTransaction === 'function') {
     callback = latestTransaction;
     latestTransaction = undefined;
   }
 
-  const self = this;
-
   // If a latestTransaction is given, use that to not get transactions earlier than that one.
   // We have to truncate the unix timestamp in order to be sure that latestTransaction is included in the response
   const start = latestTransaction ? Math.trunc(latestTransaction.raw.time) : null;
 
   // Get withdrawals
-  return self._listTransactionsRecursive('withdrawal', start, [], function(err, withdrawals) {
+  return this._listTransactionsRecursive('withdrawal', start, [], (err, withdrawals) => {
     if (err) {
       return callback(err);
     }
 
     // Get deposits
-    return self._listTransactionsRecursive('deposit', start, [], function(err, deposits) {
+    return this._listTransactionsRecursive('deposit', start, [], (err, deposits) => {
       if (err) {
         return callback(err);
       }
@@ -478,7 +468,7 @@ Kraken.prototype.listTransactions = function(latestTransaction, callback) {
       const transactions = withdrawals.concat(deposits);
 
       // Sort transactions by earliest first
-      const transactionsSorted = _.sortBy(transactions, ['raw.time']);
+      const transactionsSorted = _.sortBy(transactions, [ 'raw.time' ]);
 
       // Return sorted transactions to caller
       return callback(null, transactionsSorted);
@@ -496,9 +486,7 @@ Kraken.prototype.listTransactions = function(latestTransaction, callback) {
  * @param {function} callback Yields a list of transactions, sorting is undefined
  * @private
  */
-Kraken.prototype._listTransactionsRecursive = function(type, start, knownTransactions, callback) {
-  const self = this;
-
+Kraken.prototype._listTransactionsRecursive = function (type, start, knownTransactions, callback) {
   // Perform POST request to Ledgers endpoint
   const postData = {
     type: type,
@@ -507,7 +495,7 @@ Kraken.prototype._listTransactionsRecursive = function(type, start, knownTransac
   if (start) {
     postData.start = start;
   }
-  return Request.post(self, 'Ledgers', postData, (err, response) => {
+  return Request.post(this, 'Ledgers', postData, (err, response) => {
     // Relay error, if any
     if (err) {
       return callback(err);
@@ -515,13 +503,13 @@ Kraken.prototype._listTransactionsRecursive = function(type, start, knownTransac
 
     // Check that the response contains ledger
     if (!_.isObject(response.ledger)) {
-    const error = Error.create('Unexpected response from Ledgers endpoint', Error.EXCHANGE_SERVER_ERROR);
+      const error = Error.create('Unexpected response from Ledgers endpoint', Error.EXCHANGE_SERVER_ERROR);
       error.responseBody = JSON.stringify(response);
-      return callback(error)
+      return callback(error);
     }
 
     // Construct transaction objects for each ledger entry
-    const transactions = _.values(response.ledger).map(apiResponseConverter.convertFromKrakenTransaction);
+    const transactions = _.values(response.ledger).map(convertFromKrakenTransaction);
 
     // Merge our newly converted transactions with the ones from previous calls
     const allTransactions = transactions.concat(knownTransactions);
@@ -533,7 +521,7 @@ Kraken.prototype._listTransactionsRecursive = function(type, start, knownTransac
     }
 
     // There are more entries to be found, let's call this function recursively and add the results to our list
-    return self._listTransactionsRecursive(type, start, allTransactions, callback);
+    return this._listTransactionsRecursive(type, start, allTransactions, callback);
   });
 };
 
@@ -552,15 +540,15 @@ Kraken.prototype._listTransactionsRecursive = function(type, start, knownTransac
  * @param {string}      quoteCurrency   The exchange's quote currency. For Kraken it is always USD
  * @param {function}    callback        Returns the customized data object of the placed trade object data
  */
-Kraken.prototype.placeTrade = function(baseAmount, limitPrice, baseCurrency, quoteCurrency, callback) {
+Kraken.prototype.placeTrade = function (baseAmount, limitPrice, baseCurrency, quoteCurrency, callback) {
   const currencies = validateCurrenciesConstructPair(baseCurrency, quoteCurrency);
   if (currencies.error) {
     return callback(currencies.error);
   }
-  if (baseAmount == undefined || isNaN(baseAmount) || baseAmount == 0) {
+  if (!baseAmount || isNaN(baseAmount) || baseAmount === 0) {
     return callback(Error.create('The base amount must be a number and larger or smaller than 0.', Error.MODULE_ERROR, null));
   }
-  if (limitPrice == undefined || isNaN(limitPrice) || limitPrice < 0) {
+  if (!limitPrice || isNaN(limitPrice) || limitPrice < 0) {
     return callback(Error.create('The limit price must be a positive number.', Error.MODULE_ERROR, null));
   }
 
@@ -578,7 +566,7 @@ Kraken.prototype.placeTrade = function(baseAmount, limitPrice, baseCurrency, quo
    * The amount passed to the method is denominated in smallest sub-unit, but Kraken API requires
    * the amount to be in main unit, so we convert it.
    */
-  const amountMainUnit = Currency.fromSmallestSubunit(amountSubUnit, currencies.baseCurrency);
+  const amountMainUnit = coinifyCurrency.fromSmallestSubunit(amountSubUnit, currencies.baseCurrency);
 
   const params = {
     pair: currencies.pair,
@@ -588,7 +576,7 @@ Kraken.prototype.placeTrade = function(baseAmount, limitPrice, baseCurrency, quo
     volume: amountMainUnit
   };
 
-  Request.post(this, 'AddOrder', params, function(err, res) {
+  Request.post(this, 'AddOrder', params, (err, res) => {
     if (err) {
       return callback(err);
     }

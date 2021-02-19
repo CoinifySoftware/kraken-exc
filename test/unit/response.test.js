@@ -1,19 +1,18 @@
-"use strict";
-const sinon = require('sinon'),
-  request = require('request'),
-  expect = require('chai').expect,
-  Kraken = require('../../index.js'),
-  Error = require('../../lib/ErrorHelper.js');
+const sinon = require('sinon');
+const request = require('request');
+const expect = require('chai').expect;
+const Kraken = require('../../index.js');
+const Error = require('../../lib/ErrorHelper.js');
 
 describe('response handler function', () => {
   const kraken = new Kraken({
-    key: "apikey",
-    secret: "apisecret",
+    key: 'apikey',
+    secret: 'apisecret',
     otp: '2FA'
   });
 
-  let reqStub
-    , response;
+  let reqStub,
+    response;
 
   beforeEach((done) => {
     response = {
@@ -37,7 +36,7 @@ describe('response handler function', () => {
     kraken.getBalance(function (err, result) {
       expect(reqStub.calledOnce).to.equal(true);
       // Check input args
-      expect(reqStub.firstCall.args[0]).to.containSubset({form: {otp: '2FA'}});
+      expect(reqStub.firstCall.args[0]).to.containSubset({ form: { otp: '2FA' } });
 
       expect(result).to.equal(undefined);
       expect(err.message).to.equal('An error occurred while performing the request.');
@@ -54,7 +53,7 @@ describe('response handler function', () => {
     kraken.getBalance(function (err, result) {
       expect(reqStub.calledOnce).to.equal(true);
       // Check input args
-      expect(reqStub.firstCall.args[0]).to.containSubset({form: {otp: '2FA'}});
+      expect(reqStub.firstCall.args[0]).to.containSubset({ form: { otp: '2FA' } });
 
       expect(result).to.equal(undefined);
       expect(err.message).to.equal('Response body is empty/undefined.');
@@ -65,13 +64,13 @@ describe('response handler function', () => {
   });
 
   it('should return an error that was returned from the exchange service', function (done) {
-    const exchangeErrorMsg = ['Some random test error'];
-    reqStub.yields(null, {}, JSON.stringify({error: exchangeErrorMsg}));
+    const exchangeErrorMsg = [ 'Some random test error' ];
+    reqStub.yields(null, {}, JSON.stringify({ error: exchangeErrorMsg }));
 
     kraken.getBalance(function (err, result) {
       expect(reqStub.calledOnce).to.equal(true);
       // Check input args
-      expect(reqStub.firstCall.args[0]).to.containSubset({form: {otp: '2FA'}});
+      expect(reqStub.firstCall.args[0]).to.containSubset({ form: { otp: '2FA' } });
 
       expect(result).to.equal(undefined);
       expect(err.message).to.equal('The exchange service responded with an error.');
@@ -84,12 +83,12 @@ describe('response handler function', () => {
   });
 
   it('should return an error because the response body result could not be parsed', function (done) {
-    reqStub.yields(null, {}, {result: {asd: 'some result, does not matter...'}});
+    reqStub.yields(null, {}, { result: { asd: 'some result, does not matter...' } });
 
     kraken.getBalance(function (err, result) {
       expect(reqStub.calledOnce).to.equal(true);
       // Check input args
-      expect(reqStub.firstCall.args[0]).to.containSubset({form: {otp: '2FA'}});
+      expect(reqStub.firstCall.args[0]).to.containSubset({ form: { otp: '2FA' } });
 
       expect(result).to.equal(undefined);
       expect(err.message).to.equal('Could not understand response from exchange server.');

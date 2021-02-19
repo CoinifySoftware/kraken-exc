@@ -1,24 +1,22 @@
-"use strict";
-const sinon = require('sinon')
-  , request = require('request')
-  , chai = require('chai')
-  , expect = chai.expect
-  , chaiSubset = require('chai-subset')
-  , Kraken = require('../../index')
-  , Error = require('../../lib/ErrorHelper')
-  , constants = require('../../lib/constants');
+const sinon = require('sinon');
+const request = require('request');
+const chai = require('chai');
+const expect = chai.expect;
+const chaiSubset = require('chai-subset');
+const Kraken = require('../../index');
+const Error = require('../../lib/ErrorHelper');
 
 chai.use(chaiSubset);
 
 describe('#placeTrade', function () {
   const kraken = new Kraken({
-    key: "apikey",
-    secret: "apisecret",
+    key: 'apikey',
+    secret: 'apisecret',
     otp: '2FA'
   });
 
-  let reqStub
-    , placeTradeResponse;
+  let reqStub,
+    placeTradeResponse;
 
   beforeEach((done) => {
     placeTradeResponse = {
@@ -37,10 +35,10 @@ describe('#placeTrade', function () {
 
   /* =================   Testing response data consistency   ================= */
 
-  it('places a SELL trade order on the exchange and returns a response object', function (done) {
+  it('places a SELL trade order on the exchange and returns a response object', (done) => {
     placeTradeResponse.result = {
-      descr: {order: 'sell 0.01000000 XBTUSD @ limit 10000.000'},
-      txid: ['OOWXPS-75QXE-6YRBUU']
+      descr: { order: 'sell 0.01000000 XBTUSD @ limit 10000.000' },
+      txid: [ 'OOWXPS-75QXE-6YRBUU' ]
     };
     reqStub.yields(null, {}, JSON.stringify(placeTradeResponse));
 
@@ -79,10 +77,10 @@ describe('#placeTrade', function () {
     });
   });
 
-  it('places a BUY trade order on the exchange and returns a response object', function (done) {
+  it('places a BUY trade order on the exchange and returns a response object', (done) => {
     placeTradeResponse.result = {
-      descr: {order: 'buy 1.00000000 XBTUSD @ limit 100.000'},
-      txid: ['OOWXPS-75QXE-6YRBUU']
+      descr: { order: 'buy 1.00000000 XBTUSD @ limit 100.000' },
+      txid: [ 'OOWXPS-75QXE-6YRBUU' ]
     };
     reqStub.yields(null, {}, JSON.stringify(placeTradeResponse));
 
@@ -121,14 +119,14 @@ describe('#placeTrade', function () {
     });
   });
 
-  it('should round to 1 decimails if provided limitPrice has 3 decimails', function (done) {
+  it('should round to 1 decimails if provided limitPrice has 3 decimails', (done) => {
     placeTradeResponse.result = {
-      descr: {order: 'buy 1.00000000 XBTUSD @ limit 100.000'},
-      txid: ['OOWXPS-75QXE-6YRBUU']
+      descr: { order: 'buy 1.00000000 XBTUSD @ limit 100.000' },
+      txid: [ 'OOWXPS-75QXE-6YRBUU' ]
     };
     reqStub.yields(null, {}, JSON.stringify(placeTradeResponse));
 
-    kraken.placeTrade(100000000, 100.1259, 'BTC', 'USD', function (err, result) {
+    kraken.placeTrade(100000000, 100.1259, 'BTC', 'USD', function (err) {
       if (err) {
         return done(err);
       }
@@ -152,7 +150,7 @@ describe('#placeTrade', function () {
 
   /* =================   Testing wrong input to the endpoints   ================= */
 
-  it('returns an error about wrong currency input arguments', function (done) {
+  it('returns an error about wrong currency input arguments', (done) => {
     kraken.placeTrade(-123456, 460.84, 'bStc', 'EUR', function (err, result) {
       expect(reqStub.calledOnce).to.equal(false);
       expect(result).to.equal(undefined);
@@ -165,7 +163,7 @@ describe('#placeTrade', function () {
     });
   });
 
-  it('returns an error about wrong baseAmount input argument', function (done) {
+  it('returns an error about wrong baseAmount input argument', (done) => {
     kraken.placeTrade(null, 460.84, 'BTC', 'USD', function (err, result) {
       expect(reqStub.calledOnce).to.equal(false);
       expect(result).to.equal(undefined);
@@ -178,7 +176,7 @@ describe('#placeTrade', function () {
     });
   });
 
-  it('returns an error about wrong limitPrice input argument when NULL is passed', function (done) {
+  it('returns an error about wrong limitPrice input argument when NULL is passed', (done) => {
     kraken.placeTrade(-123456, null, 'BTC', 'USD', function (err, result) {
       expect(reqStub.calledOnce).to.equal(false);
       expect(result).to.equal(undefined);
@@ -191,7 +189,7 @@ describe('#placeTrade', function () {
     });
   });
 
-  it('returns an error about wrong limitPrice input argument when negative amount is passed', function (done) {
+  it('returns an error about wrong limitPrice input argument when negative amount is passed', (done) => {
     kraken.placeTrade(-123456, -100, 'BTC', 'USD', function (err, result) {
       expect(reqStub.calledOnce).to.equal(false);
       expect(result).to.equal(undefined);

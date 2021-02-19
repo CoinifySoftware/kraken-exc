@@ -1,13 +1,12 @@
-"use strict";
-const sinon = require('sinon'),
-  request = require('request'),
-  expect = require('chai').expect,
-  Kraken = require('../../index.js');
+const sinon = require('sinon');
+const request = require('request');
+const expect = require('chai').expect;
+const Kraken = require('../../index.js');
 
 describe('#getBalance', function () {
   const kraken = new Kraken({
-    key: "apikey",
-    secret: "apisecret",
+    key: 'apikey',
+    secret: 'apisecret',
     otp: '2FA'
   });
 
@@ -26,7 +25,7 @@ describe('#getBalance', function () {
   /* =================   Testing response data consistency   ================= */
 
   it('gets the balance of the account', function (done) {
-    const getBalanceResponse = {error: [], result: {ZEUR: '5.0568', XXBT: '12.6721093800'}};
+    const getBalanceResponse = { error: [], result: { ZEUR: '5.0568', XXBT: '12.6721093800' } };
     const getOpenTradesResponse = {
       error: [],
       result: {
@@ -78,5 +77,4 @@ describe('#getBalance', function () {
       done();
     });
   });
-
 });
