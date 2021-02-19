@@ -1,9 +1,8 @@
-'use strict';
-const sinon = require('sinon'),
-  request = require('request'),
-  expect = require('chai').expect,
-  Kraken = require('../../index.js'),
-  Error = require('../../lib/ErrorHelper.js');
+const sinon = require('sinon');
+const request = require('request');
+const expect = require('chai').expect;
+const Kraken = require('../../index.js');
+const Error = require('../../lib/ErrorHelper.js');
 
 describe('#getTicker', function () {
   const kraken = new Kraken({
@@ -28,6 +27,17 @@ describe('#getTicker', function () {
         o: '507.90800'
       },
       XXBTZUSD: {
+        a: [ '508.00000', '3', '3.000' ],
+        b: [ '506.20000', '18', '18.000' ],
+        c: [ '507.99900', '0.05576195' ],
+        v: [ '2013.76979306', '4173.76106173' ],
+        p: [ '505.96555', '506.24916' ],
+        t: [ 2756, 5473 ],
+        l: [ '503.03200', '501.11000' ],
+        h: [ '509.92000', '509.92000' ],
+        o: '507.90800'
+      },
+      XETHZUSD: {
         a: [ '508.00000', '3', '3.000' ],
         b: [ '506.20000', '18', '18.000' ],
         c: [ '507.99900', '0.05576195' ],
@@ -74,6 +84,30 @@ describe('#getTicker', function () {
   });
 
   /* =================   Testing response data consistency   ================= */
+
+  it('should get ticket data for ETH', (done) => {
+    reqStub.yields(null, {}, JSON.stringify(getTickerResponse));
+
+    kraken.getTicker('ETH', 'USD', function (err, result) {
+      if (err) {
+        return done(err);
+      }
+
+      expect(result).to.eql({
+        baseCurrency: 'ETH',
+        quoteCurrency: 'USD',
+        bid: 506.2,
+        ask: 508,
+        lastPrice: 507.999,
+        high24Hours: 509.92,
+        low24Hours: 501.11,
+        vwap24Hours: 506.24916,
+        volume24Hours: 4173761061730000
+      });
+
+      done();
+    });
+  });
 
   it('should return a custom formatted ticker object', function (done) {
     reqStub.yields(null, {}, JSON.stringify(getTickerResponse));
