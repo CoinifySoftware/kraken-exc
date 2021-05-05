@@ -511,20 +511,24 @@ Kraken.prototype._listTransactionsRecursive = function (type, start, knownTransa
       return callback(error);
     }
 
-    // Construct transaction objects for each ledger entry
-    const transactions = _.values(response.ledger).map(convertFromKrakenTransaction);
+    try {
+      // Construct transaction objects for each ledger entry
+      const transactions = _.values(response.ledger).map(convertFromKrakenTransaction);
 
-    // Merge our newly converted transactions with the ones from previous calls
-    const allTransactions = transactions.concat(knownTransactions);
+      // Merge our newly converted transactions with the ones from previous calls
+      const allTransactions = transactions.concat(knownTransactions);
 
-    // Decide how to progress: Continue if there are more ledger entries, otherwise just stop now.
-    if (_.isEmpty(response.ledger)) {
+      // Decide how to progress: Continue if there are more ledger entries, otherwise just stop now.
+      if (_.isEmpty(response.ledger)) {
       // No more ledger entries to be found. Let's just return them now!
-      return callback(null, allTransactions);
-    }
+        return callback(null, allTransactions);
+      }
 
-    // There are more entries to be found, let's call this function recursively and add the results to our list
-    return this._listTransactionsRecursive(type, start, allTransactions, callback);
+      // There are more entries to be found, let's call this function recursively and add the results to our list
+      return this._listTransactionsRecursive(type, start, allTransactions, callback);
+    } catch(err) {
+      return callback(err);
+    }
   });
 };
 
