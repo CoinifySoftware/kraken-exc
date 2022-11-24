@@ -243,4 +243,46 @@ describe('listTransactions', () => {
       done();
     });
   });
+
+  [ 'ETHW' ].forEach(asset => {
+    it(`support known ${asset} Kraken currency symbol`, (done) => {
+      /*
+       * Mock response from the Ledgers endpoint
+       */
+      const transferRawObject = {
+        aclass: 'currency',
+        amount: '0.0000059',
+        asset: asset,
+        balance: '0.0000059',
+        fee: '0.0000000',
+        refid: 'LQ4LR7-6WL5O-Y4XDP3',
+        time: 1663395064.5828128,
+        type: 'transfer',
+        subtype: 'spotfromfutures'
+      };
+
+      const transferApiResponse =
+      {
+        ledger: { 'LQ4LR7-6WL5O-Y4XDP3': transferRawObject }
+      };
+
+      /*
+       * Define expected response from listTransactions()
+       */
+      const expectedConvertedResponse = [ ];
+
+      const withdrawalReqStub = reqStub.withArgs(sinon.match.any, 'Ledgers');
+      withdrawalReqStub.onCall(0).yields(null, transferApiResponse);
+      withdrawalReqStub.onCall(1).yields(null, { ledger: {} });
+
+      kraken.listTransactions(null, function (err, result) {
+        if (err) {
+          return done(err);
+        }
+        expect(result).to.deep.equal(expectedConvertedResponse);
+
+        done();
+      });
+    });
+  });
 });
