@@ -244,15 +244,15 @@ describe('listTransactions', () => {
     });
   });
 
-  [ 'ETHW' ].forEach(asset => {
-    it(`support known ${asset} Kraken currency symbol`, (done) => {
+  [ 'ETHW' ].forEach(krakenAssetSymbol => {
+    it(`support known ${krakenAssetSymbol} Kraken currency symbol for transfer types`, (done) => {
       /*
        * Mock response from the Ledgers endpoint
        */
       const transferRawObject = {
         aclass: 'currency',
         amount: '0.0000059',
-        asset: asset,
+        asset: krakenAssetSymbol,
         balance: '0.0000059',
         fee: '0.0000000',
         refid: 'LQ4LR7-6WL5O-Y4XDP3',
@@ -269,11 +269,54 @@ describe('listTransactions', () => {
       /*
        * Define expected response from listTransactions()
        */
-      const expectedConvertedResponse = [ ];
+      const expectedConvertedResponse = [
+        {
+          amount: 5900000,
+          currency: 'ETHW',
+          externalId: 'LQ4LR7-6WL5O-Y4XDP3',
+          raw: {
+            aclass: 'currency',
+            amount: '0.0000059',
+            asset: 'ETHW',
+            balance: '0.0000059',
+            fee: '0.0000000',
+            refid: 'LQ4LR7-6WL5O-Y4XDP3',
+            subtype: 'spotfromfutures',
+            time: 1663395064.5828128,
+            type: 'transfer'
+          },
+          state: 'completed',
+          timestamp: '2022-09-17T06:11:04.582Z',
+          type: 'transfer'
+        },
+        {
+          amount: 5900000,
+          currency: 'ETHW',
+          externalId: 'LQ4LR7-6WL5O-Y4XDP3',
+          raw: {
+            aclass: 'currency',
+            amount: '0.0000059',
+            asset: 'ETHW',
+            balance: '0.0000059',
+            fee: '0.0000000',
+            refid: 'LQ4LR7-6WL5O-Y4XDP3',
+            subtype: 'spotfromfutures',
+            time: 1663395064.5828128,
+            type: 'transfer'
+          },
+          state: 'completed',
+          timestamp: '2022-09-17T06:11:04.582Z',
+          type: 'transfer'
+        }
+      ];
 
-      const withdrawalReqStub = reqStub.withArgs(sinon.match.any, 'Ledgers');
+      const withdrawalReqStub = reqStub.withArgs(sinon.match.any, 'Ledgers', sinon.match({ type: 'withdrawal' }));
       withdrawalReqStub.onCall(0).yields(null, transferApiResponse);
       withdrawalReqStub.onCall(1).yields(null, { ledger: {} });
+
+      const depositReqStub = reqStub.withArgs(sinon.match.any, 'Ledgers', sinon.match({ type: 'deposit' }));
+      depositReqStub.onCall(0).yields(null, transferApiResponse);
+      depositReqStub.onCall(1).yields(null, { ledger: {} });
 
       kraken.listTransactions(null, function (err, result) {
         if (err) {
