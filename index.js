@@ -216,57 +216,61 @@ Kraken.prototype.getBalance = function (callback) {
         return callback(err);
       }
 
-      const total = {
-        USD: resBalance.ZUSD ? coinifyCurrency.toSmallestSubunit(resBalance.ZUSD, 'USD') : 0,
-        EUR: resBalance.ZEUR ? coinifyCurrency.toSmallestSubunit(resBalance.ZEUR, 'EUR') : 0,
-        BTC: resBalance.XXBT ? coinifyCurrency.toSmallestSubunit(resBalance.XXBT, 'BTC') : 0,
-        BSV: resBalance.BSV ? coinifyCurrency.toSmallestSubunit(resBalance.BSV, 'BSV') : 0,
-        ETH: resBalance.XETH ? coinifyCurrency.toSmallestSubunit(resBalance.XETH, 'ETH') : 0
-      };
+      try {
+        const total = {
+          USD: resBalance.ZUSD ? coinifyCurrency.toSmallestSubunit(resBalance.ZUSD, 'USD') : 0,
+          EUR: resBalance.ZEUR ? coinifyCurrency.toSmallestSubunit(resBalance.ZEUR, 'EUR') : 0,
+          BTC: resBalance.XXBT ? coinifyCurrency.toSmallestSubunit(resBalance.XXBT, 'BTC') : 0,
+          BSV: resBalance.BSV ? coinifyCurrency.toSmallestSubunit(resBalance.BSV, 'BSV') : 0,
+          ETH: resBalance.XETH ? coinifyCurrency.toSmallestSubunit(resBalance.XETH, 'ETH') : 0
+        };
 
-      const toSubtractFromTotal = {
-        BTC: 0,
-        EUR: 0,
-        USD: 0,
-        BSV: 0,
-        ETH: 0
-      };
-
-      /*
-       * Loop through the open orders (reserved) and accumulate amounts to be subtracted from the total balance, so
-       * that we calculate how much is the available balance
-       */
-      _.forEach(resOrders.open, (order) => {
-        const baseCurrency = convertFromKrakenCurrencyCode(order.descr.pair.slice(0, 3));
-        const quoteCurrency = order.descr.pair.slice(3);
+        const toSubtractFromTotal = {
+          BTC: 0,
+          EUR: 0,
+          USD: 0,
+          BSV: 0,
+          ETH: 0
+        };
 
         /*
-         * The crypto currency is always the base and fiat is the quote in the orders. Therefore, for SELL orders we
-         * want to see the volume we are selling (the `vol` property) and reserve it. And for BUY orders we want to see
-         * how much we are buying for (the `descr.price` property) and reserve it.
-         */
-        switch (order.descr.type) {
-          case 'sell':
-            toSubtractFromTotal[baseCurrency] += coinifyCurrency.toSmallestSubunit(order.vol, baseCurrency);
-            break;
-          case 'buy':
-            toSubtractFromTotal[quoteCurrency] +=coinifyCurrency.toSmallestSubunit(order.descr.price, quoteCurrency);
-            break;
-        }
-      });
+        * Loop through the open orders (reserved) and accumulate amounts to be subtracted from the total balance, so
+        * that we calculate how much is the available balance
+        */
+        _.forEach(resOrders.open, (order) => {
+          const baseCurrency = convertFromKrakenCurrencyCode(order.descr.pair.slice(0, 3));
+          const quoteCurrency = order.descr.pair.slice(3);
 
-      const available = {
-        USD: total.USD - toSubtractFromTotal.USD,
-        EUR: total.EUR - toSubtractFromTotal.EUR,
-        BTC: total.BTC - toSubtractFromTotal.BTC,
-        BSV: total.BSV - toSubtractFromTotal.BSV,
-        ETH: total.ETH - toSubtractFromTotal.ETH
-      };
+          /*
+          * The crypto currency is always the base and fiat is the quote in the orders. Therefore, for SELL orders we
+          * want to see the volume we are selling (the `vol` property) and reserve it. And for BUY orders we want to see
+          * how much we are buying for (the `descr.price` property) and reserve it.
+          */
+          switch (order.descr.type) {
+            case 'sell':
+              toSubtractFromTotal[baseCurrency] += coinifyCurrency.toSmallestSubunit(order.vol, baseCurrency);
+              break;
+            case 'buy':
+              toSubtractFromTotal[quoteCurrency] +=coinifyCurrency.toSmallestSubunit(order.descr.price, quoteCurrency);
+              break;
+          }
+        });
 
-      return callback(null, {
-        available,
-        total
-      });
+        const available = {
+          USD: total.USD - toSubtractFromTotal.USD,
+          EUR: total.EUR - toSubtractFromTotal.EUR,
+          BTC: total.BTC - toSubtractFromTotal.BTC,
+          BSV: total.BSV - toSubtractFromTotal.BSV,
+          ETH: total.ETH - toSubtractFromTotal.ETH
+        };
+
+        return callback(null, {
+          available,
+          total
+        });
+      } catch( err) {
+        return callback(err);
+      }
     });
   });
 };
