@@ -69,6 +69,17 @@ describe('#getTicker', function () {
         l: [ '503.03200', '501.11000' ],
         h: [ '509.92000', '509.92000' ],
         o: '507.90800'
+      },
+      USDCUSD: {
+        a: [ '0.99970000', '16256', '16256.000' ],
+        b: [ '0.99950000', '104', '104.000' ],
+        c: [ '0.99950000', '114.29282439' ],
+        v: [ '3752536.94631957', '8064321.95581636' ],
+        p: [ '0.99960921', '0.99973907' ],
+        t: [ 1600, 3697 ],
+        l: [ '0.99900000', '0.99900000' ],
+        h: [ '0.99980000', '1.00000000' ],
+        o: '0.99970000'
       }
     }
   };
@@ -142,6 +153,30 @@ describe('#getTicker', function () {
     });
   });
 
+  it('should get ticket data for USDC', (done) => {
+    reqStub.yields(null, {}, JSON.stringify(getTickerResponse));
+
+    kraken.getTicker('USDC', 'USD', function (err, result) {
+      if (err) {
+        return done(err);
+      }
+
+      expect(result).to.eql({
+        baseCurrency: 'USDC',
+        quoteCurrency: 'USD',
+        bid: 0.9995,
+        ask: 0.9997,
+        lastPrice: 0.9995,
+        high24Hours: 1,
+        low24Hours: 0.999,
+        vwap24Hours: 0.99973907,
+        volume24Hours: 806432195581636
+      });
+
+      done();
+    });
+  });
+
   /* =================   Testing valid pairs   ================= */
 
   it('should return a response for the currency pair BTC/USD', function (done) {
@@ -198,6 +233,24 @@ describe('#getTicker', function () {
     });
   });
 
+  it('should return a response for the currency pair USDC/USD', function (done) {
+    reqStub.yields(null, {}, JSON.stringify(getTickerResponse));
+
+    kraken.getTicker('USDC', 'USD', function (err, result) {
+      if (err) {
+        return done(err);
+      }
+
+      expect(reqStub.calledOnce).to.equal(true);
+      // Check input args
+      expect(reqStub.firstCall.args[0]).to.containSubset({ form: { pair: 'USDCUSD' }, url: 'https://api.kraken.com/0/public/Ticker' });
+
+      expect(result).to.be.an('Object');
+
+      done();
+    });
+  });
+
   /* =================   Testing wrong input to the endpoint   ================= */
 
   it('should return an error about wrong currency input when baseCurrency is an invalid currency code', function (done) {
@@ -205,7 +258,7 @@ describe('#getTicker', function () {
       expect(reqStub.calledOnce).to.equal(false);
       expect(result).to.equal(undefined);
 
-      expect(err.message).to.equal('Kraken only supports BTC, ETH or BSV as base currency and USD or EUR as quote currency.');
+      expect(err.message).to.equal('Kraken only supports BTC, ETH, BSV or USDC as base currency and USD or EUR as quote currency.');
       expect(err.code).to.equal(Error.MODULE_ERROR);
       expect(err.cause).to.equal(undefined);
 
@@ -218,7 +271,7 @@ describe('#getTicker', function () {
       expect(reqStub.calledOnce).to.equal(false);
       expect(result).to.equal(undefined);
 
-      expect(err.message).to.equal('Kraken only supports BTC, ETH or BSV as base currency and USD or EUR as quote currency.');
+      expect(err.message).to.equal('Kraken only supports BTC, ETH, BSV or USDC as base currency and USD or EUR as quote currency.');
       expect(err.code).to.equal(Error.MODULE_ERROR);
       expect(err.cause).to.equal(undefined);
 
