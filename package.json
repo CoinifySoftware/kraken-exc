@@ -7,7 +7,7 @@
     "url": "https://github.com/CoinifySoftware/kraken-exc/issues"
   },
   "dependencies": {
-    "@coinify/currency": "^1.3.33",
+    "@coinify/currency": "^1.3.35",
     "async": "^3.2.0",
     "console-log-level": "^1.4.1",
     "lodash": "^4.17.21",
@@ -43,5 +43,5 @@
     "test": "LOG_LEVEL=fatal mocha --config .mocharc.json",
     "test-watch": "LOG_LEVEL=info mocha --config .mocharc.json --watch"
   },
-  "version": "1.4.6"
+  "version": "1.4.7"
 }
