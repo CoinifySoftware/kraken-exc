@@ -217,22 +217,14 @@ Kraken.prototype.getBalance = function (callback) {
       }
 
       try {
-        const total = {
-          USD: resBalance.ZUSD ? coinifyCurrency.toSmallestSubunit(resBalance.ZUSD, 'USD') : 0,
-          EUR: resBalance.ZEUR ? coinifyCurrency.toSmallestSubunit(resBalance.ZEUR, 'EUR') : 0,
-          BTC: resBalance.XXBT ? coinifyCurrency.toSmallestSubunit(resBalance.XXBT, 'BTC') : 0,
-          BSV: resBalance.BSV ? coinifyCurrency.toSmallestSubunit(resBalance.BSV, 'BSV') : 0,
-          ETH: resBalance.XETH ? coinifyCurrency.toSmallestSubunit(resBalance.XETH, 'ETH') : 0
-        };
+        // Get currencies we want to store balance for and convert to subunits
+        const total = _(resBalance)
+          .pickBy((amount) => parseFloat(amount) !== 0)
+          .mapKeys((amount, currency) => convertFromKrakenCurrencyCode(currency))
+          .mapValues((amount, currency) => coinifyCurrency.toSmallestSubunit(amount, currency))
+          .value();
 
-        const toSubtractFromTotal = {
-          BTC: 0,
-          EUR: 0,
-          USD: 0,
-          BSV: 0,
-          ETH: 0
-        };
-
+        const toSubtractFromTotal = _(_.cloneDeep(total)).mapValues(() => 0).value();
         /*
         * Loop through the open orders (reserved) and accumulate amounts to be subtracted from the total balance, so
         * that we calculate how much is the available balance
@@ -256,13 +248,7 @@ Kraken.prototype.getBalance = function (callback) {
           }
         });
 
-        const available = {
-          USD: total.USD - toSubtractFromTotal.USD,
-          EUR: total.EUR - toSubtractFromTotal.EUR,
-          BTC: total.BTC - toSubtractFromTotal.BTC,
-          BSV: total.BSV - toSubtractFromTotal.BSV,
-          ETH: total.ETH - toSubtractFromTotal.ETH
-        };
+        const available = _(_.cloneDeep(total)).mapValues((amount, currency) => amount - toSubtractFromTotal[currency]).value();
 
         return callback(null, {
           available,
