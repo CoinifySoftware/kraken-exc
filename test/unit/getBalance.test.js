@@ -24,7 +24,7 @@ describe('#getBalance', function () {
   /* =================   Testing response data consistency   ================= */
 
   it('gets the balance of the account', function (done) {
-    const getBalanceResponse = { error: [], result: { ZUSD: '0.0', ZEUR: '5.0568', XXBT: '12.6721093800', XETH: '1.01', ZCAD: '2.02' } };
+    const getBalanceResponse = { error: [], result: { GLM: '0.0', ZUSD: '0.0', ZEUR: '5.0568', XXBT: '12.6721093800', XETH: '1.01', ZCAD: '2.02' } };
     const getOpenTradesResponse = {
       error: [],
       result: {

@@ -220,6 +220,7 @@ Kraken.prototype.getBalance = function (callback) {
         // Get currencies we want to store balance for and convert to subunits
         const total = _(resBalance)
           .mapKeys((amount, currency) => convertFromKrakenCurrencyCode(currency))
+          .pickBy((amount, currency) => coinifyCurrency.isValidCurrency(currency))
           .mapValues((amount, currency) => coinifyCurrency.toSmallestSubunit(amount, currency))
           .value();
 
