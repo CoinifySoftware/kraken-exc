@@ -43,5 +43,5 @@
     "test": "LOG_LEVEL=fatal mocha --config .mocharc.json",
     "test-watch": "LOG_LEVEL=info mocha --config .mocharc.json --watch"
   },
-  "version": "2.1.1"
+  "version": "2.2.0"
 }
