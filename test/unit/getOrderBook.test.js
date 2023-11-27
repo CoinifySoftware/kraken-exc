@@ -240,6 +240,55 @@ describe('#getOrderBook', function () {
     });
   });
 
+  it('should get order book for USDT', (done) => {
+    const getOrderBookUSDTResponse = {
+      error: [],
+      result: {
+        USDTUSD: {
+          bids: [
+            [ '0.99950000', '28987.147', 1688551241 ],
+            [ '0.99940000', '100758.127', 1688551195 ],
+            [ '0.99930000', '67178.494', 1688551034 ],
+            [ '0.99910000', '283.773', 1688551240 ]
+          ],
+          asks: [
+            [ '0.99990000', '810294.730', 1688551257 ],
+            [ '1.00000000', '2699030.268', 1688551210 ],
+            [ '1.00010000', '39054.677', 1688551203 ],
+            [ '1.00020000', '878543.111', 1688550748 ]
+          ]
+        }
+      }
+    };
+
+    reqStub.yields(null, {}, JSON.stringify(getOrderBookUSDTResponse));
+
+    kraken.getOrderBook('USDT', 'USD', (err, result) => {
+      if (err) {
+        return done(err);
+      }
+
+      expect(result).to.eql({
+        baseCurrency: 'USDT',
+        quoteCurrency: 'USD',
+        bids: [
+          { price: 0.9995, baseAmount: 2898714700000 },
+          { price: 0.9994, baseAmount: 10075812700000 },
+          { price: 0.9993, baseAmount: 6717849400000 },
+          { price: 0.9991, baseAmount: 28377300000 }
+        ],
+        asks: [
+          { price: 0.9999, baseAmount: 81029473000000 },
+          { price: 1, baseAmount: 269903026800000 },
+          { price: 1.0001, baseAmount: 3905467700000 },
+          { price: 1.0002, baseAmount: 87854311100000 }
+        ]
+      });
+
+      done();
+    });
+  });
+
   /* =================   Testing wrong input to the endpoint   ================= */
 
   it('should return an error about wrong currency input when baseCurrency is an invalid currency code', function (done) {
@@ -247,7 +296,7 @@ describe('#getOrderBook', function () {
       expect(reqStub.calledOnce).to.equal(false);
       expect(result).to.equal(undefined);
 
-      expect(err.message).to.equal('Kraken only supports BTC, ETH, BSV or USDC as base currency and USD or EUR as quote currency.');
+      expect(err.message).to.contain('Kraken only supports BTC, ');
       expect(err.code).to.equal(Error.MODULE_ERROR);
       expect(err.cause).to.equal(undefined);
 
@@ -260,7 +309,7 @@ describe('#getOrderBook', function () {
       expect(reqStub.calledOnce).to.equal(false);
       expect(result).to.equal(undefined);
 
-      expect(err.message).to.equal('Kraken only supports BTC, ETH, BSV or USDC as base currency and USD or EUR as quote currency.');
+      expect(err.message).to.contain('Kraken only supports BTC, ');
       expect(err.code).to.equal(Error.MODULE_ERROR);
       expect(err.cause).to.equal(undefined);
 

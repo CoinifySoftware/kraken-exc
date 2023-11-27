@@ -31,9 +31,9 @@ function validateCurrenciesConstructPair(baseCurrency, quoteCurrency) {
   baseCurrency = baseCurrency.toUpperCase();
   quoteCurrency = quoteCurrency.toUpperCase();
 
-  if (!_.includes([ 'BTC', 'BSV', 'ETH', 'USDC' ], baseCurrency) || !_.includes([ 'USD', 'EUR' ], quoteCurrency)) {
+  if (!_.includes([ 'BTC', 'BSV', 'ETH', 'USDC', 'USDT' ], baseCurrency) || !_.includes([ 'USD', 'EUR' ], quoteCurrency)) {
     return {
-      error: Error.create('Kraken only supports BTC, ETH, BSV or USDC as base currency and USD or EUR as quote currency.',
+      error: Error.create('Kraken only supports BTC, ETH, BSV, USDT or USDC as base currency and USD or EUR as quote currency.',
         Error.MODULE_ERROR, null)
     };
   }
