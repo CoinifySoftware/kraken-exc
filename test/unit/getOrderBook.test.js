@@ -244,7 +244,7 @@ describe('#getOrderBook', function () {
     const getOrderBookUSDTResponse = {
       error: [],
       result: {
-        USDTUSD: {
+        USDTZUSD: {
           bids: [
             [ '0.99950000', '28987.147', 1688551241 ],
             [ '0.99940000', '100758.127', 1688551195 ],
