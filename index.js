@@ -40,7 +40,16 @@ function validateCurrenciesConstructPair(baseCurrency, quoteCurrency) {
 
   /* Kraken returns XBT as BTC. It accepts both variations, but returns XBT only. */
   const baseCurrencyKraken = baseCurrency === 'BTC' ? 'XBT' : baseCurrency;
-  const pair = [ 'BTC', 'ETH' ].includes(baseCurrency) ? `X${baseCurrencyKraken}Z${quoteCurrency}` : `${baseCurrencyKraken}${quoteCurrency}`;
+
+  let pair;
+  // Map to inconsistent Kraken pairs
+  if ([ 'BTC', 'ETH' ].includes(baseCurrency)) {
+    pair = `X${baseCurrencyKraken}Z${quoteCurrency}`;
+  } else if ([ 'USDT' ].includes(baseCurrency)) {
+    pair = `${baseCurrencyKraken}Z${quoteCurrency}`;
+  } else {
+    pair = `${baseCurrencyKraken}${quoteCurrency}`;
+  }
 
   return {
     baseCurrency,
