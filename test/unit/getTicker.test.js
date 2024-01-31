@@ -87,7 +87,7 @@ describe('#getTicker', function () {
   let reqStub;
 
   beforeEach(() => {
-    reqStub = sinon.stub(request, 'post');
+    reqStub = sinon.stub(request, 'get');
   });
 
   afterEach(() => {
@@ -130,7 +130,7 @@ describe('#getTicker', function () {
 
       expect(reqStub.calledOnce).to.equal(true);
       // Check input args
-      expect(reqStub.firstCall.args[0]).to.containSubset({ form: { pair: 'XXBTZEUR' }, url: 'https://api.kraken.com/0/public/Ticker' });
+      expect(reqStub.firstCall.args[0]).to.containSubset({ qs: { pair: 'XXBTZEUR' }, url: 'https://api.kraken.com/0/public/Ticker' });
 
       expect(result).to.be.an('Object');
 
@@ -189,7 +189,7 @@ describe('#getTicker', function () {
 
       expect(reqStub.calledOnce).to.equal(true);
       // Check input args
-      expect(reqStub.firstCall.args[0]).to.containSubset({ form: { pair: 'XXBTZUSD' }, url: 'https://api.kraken.com/0/public/Ticker' });
+      expect(reqStub.firstCall.args[0]).to.containSubset({ qs: { pair: 'XXBTZUSD' }, url: 'https://api.kraken.com/0/public/Ticker' });
 
       expect(result).to.be.an('Object');
 
@@ -207,7 +207,7 @@ describe('#getTicker', function () {
 
       expect(reqStub.calledOnce).to.equal(true);
       // Check input args
-      expect(reqStub.firstCall.args[0]).to.containSubset({ form: { pair: 'BSVEUR' }, url: 'https://api.kraken.com/0/public/Ticker' });
+      expect(reqStub.firstCall.args[0]).to.containSubset({ qs: { pair: 'BSVEUR' }, url: 'https://api.kraken.com/0/public/Ticker' });
 
       expect(result).to.be.an('Object');
 
@@ -225,7 +225,7 @@ describe('#getTicker', function () {
 
       expect(reqStub.calledOnce).to.equal(true);
       // Check input args
-      expect(reqStub.firstCall.args[0]).to.containSubset({ form: { pair: 'BSVUSD' }, url: 'https://api.kraken.com/0/public/Ticker' });
+      expect(reqStub.firstCall.args[0]).to.containSubset({ qs: { pair: 'BSVUSD' }, url: 'https://api.kraken.com/0/public/Ticker' });
 
       expect(result).to.be.an('Object');
 
@@ -243,7 +243,7 @@ describe('#getTicker', function () {
 
       expect(reqStub.calledOnce).to.equal(true);
       // Check input args
-      expect(reqStub.firstCall.args[0]).to.containSubset({ form: { pair: 'USDCUSD' }, url: 'https://api.kraken.com/0/public/Ticker' });
+      expect(reqStub.firstCall.args[0]).to.containSubset({ qs: { pair: 'USDCUSD' }, url: 'https://api.kraken.com/0/public/Ticker' });
 
       expect(result).to.be.an('Object');
 
