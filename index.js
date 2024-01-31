@@ -91,8 +91,8 @@ Kraken.prototype.getOrderBook = function (baseCurrency, quoteCurrency, callback)
     return callback(currencies.error);
   }
 
-  Request.post(this, 'Depth', {
-    pair: currencies.pair
+  Request.get(this, 'Depth', {
+    qs: { pair: currencies.pair }
   }, (err, res) => {
     if (err) {
       return callback(err);
@@ -156,8 +156,8 @@ Kraken.prototype.getTicker = function (baseCurrency, quoteCurrency, callback) {
     return callback(currencies.error);
   }
 
-  Request.post(this, 'Ticker', {
-    pair: currencies.pair
+  Request.get(this, 'Ticker', {
+    qs: { pair: currencies.pair }
   }, (err, res) => {
     if (err) {
       return callback(err);

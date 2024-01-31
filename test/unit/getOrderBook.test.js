@@ -61,7 +61,7 @@ describe('#getOrderBook', function () {
   let reqStub;
 
   beforeEach(() => {
-    reqStub = sinon.stub(request, 'post');
+    reqStub = sinon.stub(request, 'get');
   });
 
   afterEach(() => {
@@ -163,7 +163,7 @@ describe('#getOrderBook', function () {
 
       expect(reqStub.calledOnce).to.equal(true);
       // Check input args
-      expect(reqStub.firstCall.args[0]).to.containSubset({ form: { pair: 'XXBTZEUR' }, url: 'https://api.kraken.com/0/public/Depth' });
+      expect(reqStub.firstCall.args[0]).to.containSubset({ qs: { pair: 'XXBTZEUR' }, url: 'https://api.kraken.com/0/public/Depth' });
 
       expect(result).to.be.an('Object');
 
