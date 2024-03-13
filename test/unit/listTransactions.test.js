@@ -2,6 +2,7 @@ const sinon = require('sinon');
 const request = require('../../lib/RequestHelper.js');
 const expect = require('chai').expect;
 const _ = require('lodash');
+const coinifyCurrency = require('@coinify/currency');
 const Kraken = require('../../index.js');
 
 describe('listTransactions', () => {
@@ -244,7 +245,7 @@ describe('listTransactions', () => {
     });
   });
 
-  [ 'ETHW' ].forEach(krakenAssetSymbol => {
+  [ 'ETHW', 'FIL' ].forEach(krakenAssetSymbol => {
     it(`support known ${krakenAssetSymbol} Kraken currency symbol for transfer types`, (done) => {
       /*
        * Mock response from the Ledgers endpoint
@@ -271,13 +272,13 @@ describe('listTransactions', () => {
        */
       const expectedConvertedResponse = [
         {
-          amount: 5900000,
-          currency: 'ETHW',
+          amount: coinifyCurrency.toSmallestSubunit(0.0000059, krakenAssetSymbol),
+          currency: krakenAssetSymbol,
           externalId: 'LQ4LR7-6WL5O-Y4XDP3',
           raw: {
             aclass: 'currency',
             amount: '0.0000059',
-            asset: 'ETHW',
+            asset: krakenAssetSymbol,
             balance: '0.0000059',
             fee: '0.0000000',
             refid: 'LQ4LR7-6WL5O-Y4XDP3',
@@ -290,13 +291,13 @@ describe('listTransactions', () => {
           type: 'transfer'
         },
         {
-          amount: 5900000,
-          currency: 'ETHW',
+          amount: coinifyCurrency.toSmallestSubunit(0.0000059, krakenAssetSymbol),
+          currency: krakenAssetSymbol,
           externalId: 'LQ4LR7-6WL5O-Y4XDP3',
           raw: {
             aclass: 'currency',
             amount: '0.0000059',
-            asset: 'ETHW',
+            asset: krakenAssetSymbol,
             balance: '0.0000059',
             fee: '0.0000000',
             refid: 'LQ4LR7-6WL5O-Y4XDP3',
