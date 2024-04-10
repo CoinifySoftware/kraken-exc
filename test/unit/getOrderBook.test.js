@@ -289,6 +289,54 @@ describe('#getOrderBook', function () {
     });
   });
 
+  it('should get order book for TRX', (done) => {
+    const getOrderBookTRXResponse = {
+      error: [],
+      result: {
+        TRXUSD: {
+          bids: [
+            [ '0.1189270', '380803.755', 1712770715 ],
+            [ '0.1189280', '1680.000', 1712770535 ],
+            [ '0.1189290', '40843.231', 1712770715 ],
+            [ '0.1189440', '12822.223', 1712770726 ]
+          ],
+          asks: [
+            [ '0.1189260', '1680.200', 1712770300 ],
+            [ '0.1188240', '407.508', 1712770717 ],
+            [ '0.1188230', '30000.000', 1712770721 ],
+            [ '0.1188220', '12623.876', 1712770709 ]
+          ]
+        }
+      }
+    };
+
+    reqStub.yields(null, {}, JSON.stringify(getOrderBookTRXResponse));
+
+    kraken.getOrderBook('TRX', 'USD', (err, result) => {
+      if (err) {
+        return done(err);
+      }
+
+      expect(result).to.eql({
+        baseCurrency: 'TRX',
+        quoteCurrency: 'USD',
+        bids: [
+          { price: 0.1189270, baseAmount: 380803755000 },
+          { price: 0.1189280, baseAmount: 1680000000 },
+          { price: 0.1189290, baseAmount: 40843231000 },
+          { price: 0.1189440, baseAmount: 12822223000 }
+        ],
+        asks: [
+          { price: 0.1189260, baseAmount: 1680200000 },
+          { price: 0.1188240, baseAmount: 407508000 },
+          { price: 0.1188230, baseAmount: 30000000000 },
+          { price: 0.1188220, baseAmount: 12623876000 }
+        ]
+      });
+
+      done();
+    });
+  });
   /* =================   Testing wrong input to the endpoint   ================= */
 
   it('should return an error about wrong currency input when baseCurrency is an invalid currency code', function (done) {

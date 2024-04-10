@@ -80,7 +80,15 @@ describe('#getTicker', function () {
         l: [ '0.99900000', '0.99900000' ],
         h: [ '0.99980000', '1.00000000' ],
         o: '0.99970000'
-      }
+      },
+      TRXUSD: {
+        a: [ '0.1191850', '30000', '30000.000' ],
+        b: [ '0.1191310', '5647', '5647.000' ],
+        c: [ '0.1191750', '359.37203300' ],
+        v: [ '17265319.40005965', '18011212.83474792' ],
+        p: [ '0.1208644', '0.1208695' ], t: [ 1590, 1964 ],
+        l: [ '0.1178630', '0.1178630' ],
+        h: [ '0.1239300', '0.1239300' ], o: '0.1209670' }
     }
   };
 
@@ -244,6 +252,24 @@ describe('#getTicker', function () {
       expect(reqStub.calledOnce).to.equal(true);
       // Check input args
       expect(reqStub.firstCall.args[0]).to.containSubset({ qs: { pair: 'USDCUSD' }, url: 'https://api.kraken.com/0/public/Ticker' });
+
+      expect(result).to.be.an('Object');
+
+      done();
+    });
+  });
+
+  it('should return a response for the currency pair TRX/USD', function (done) {
+    reqStub.yields(null, {}, JSON.stringify(getTickerResponse));
+
+    kraken.getTicker('TRX', 'USD', function (err, result) {
+      if (err) {
+        return done(err);
+      }
+
+      expect(reqStub.calledOnce).to.equal(true);
+      // Check input args
+      expect(reqStub.firstCall.args[0]).to.containSubset({ qs: { pair: 'TRXUSD' }, url: 'https://api.kraken.com/0/public/Ticker' });
 
       expect(result).to.be.an('Object');
 
