@@ -65,7 +65,6 @@ describe('#getBalance', function () {
       expect(result).to.be.an('Object');
       expect(result).to.have.property('available');
       expect(result).to.have.property('total');
-      console.log(result);
       expect(result.available.USD).to.equal(0);
       expect(result.available.EUR).to.equal(406);
       expect(result.available.BTC).to.equal(1167210938);
