@@ -45,7 +45,7 @@ function validateCurrenciesConstructPair(baseCurrency, quoteCurrency) {
   // Map to inconsistent Kraken pairs
   if ([ 'BTC', 'ETH' ].includes(baseCurrency)) {
     pair = `X${baseCurrencyKraken}Z${quoteCurrency}`;
-  } else if ([ 'USDT' ].includes(baseCurrency)) {
+  } else if ([ 'USDT' ].includes(baseCurrency) && [ 'USD' ].includes(quoteCurrency)) {
     pair = `${baseCurrencyKraken}Z${quoteCurrency}`;
   } else {
     pair = `${baseCurrencyKraken}${quoteCurrency}`;
