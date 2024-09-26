@@ -106,6 +106,34 @@ describe('#ApiResponseConverter', function () {
 
   });
 
+  describe('#convertFromKrakenTrade', function () {
+    const convertFromKrakenTrade = ApiResponseConverter.convertFromKrakenTrade;
+
+    it('convertFromKrakenTrade', () => {
+      const id = 'TCWJEG-FL4SZ-3FKGH6';
+      const trade = convertFromKrakenTrade(id, { ordertxid: 'OQCLML-BW3P3-BUCMWZ',
+        postxid: 'TKH2SE-M7IF5-CFI7LT',
+        pair: 'XETHZUSD',
+        time: Date.now()/1000,
+        type: 'buy',
+        ordertype: 'limit',
+        price: '30010.00000',
+        cost: '300.10000',
+        fee: '0.00000',
+        vol: '0.01000000',
+        margin: '0.00000',
+        misc: '',
+        trade_id: 39482674,
+        maker: true
+      });
+
+      expect(trade).containSubset({
+        externalId: id,
+        type: 'buy',
+        baseCurrency: 'ETH'
+      });
+    });
+  });
 
 });
 
