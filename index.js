@@ -610,10 +610,30 @@ Kraken.prototype.placeTrade = function (baseAmount, limitPrice, baseCurrency, qu
 
 /**
  * Lists Trade History for a given period.
+ * 
+ * @typedef {Function} CallbackFn
  *
+ * @param {Error|null} error
+ * @param {{
+ *   externalId: string;
+ *   timestamp: string;
+ *   state: 'closed' | string;
+ *   baseCurrency: string;
+ *   baseAmount: number;
+ *   feeAmount: number;
+ *   quoteCurrency: string;
+ *   quoteAmount: number;
+ *   type: 'buy' | 'sell';
+ *   orderType: string;
+ *   raw: any;
+ * }[]} trade - An array of trade details.
+ *
+ * @returns {void}
+ */
+/**
  * @param {Date}   fromDateTime The start DateTime
  * @param {Date}   toDateTime The end DateTime
- * @param {function}  callback Returns the customized data object of the trades in the given period
+ * @param {CallbackFn}  callback Returns the customized data object of the trades in the given period
  */
 Kraken.prototype.listTradeHistoryForPeriod = function (fromDateTime, toDateTime, callback) {
   if (Object.prototype.toString.call(fromDateTime) !== '[object Date]' || Object.prototype.toString.call(toDateTime) !== '[object Date]') {
@@ -630,18 +650,20 @@ Kraken.prototype.listTradeHistoryForPeriod = function (fromDateTime, toDateTime,
       return callback(err, null);
     }
 
-    if (!('result' in res) || !('trades' in res.result)) {
+    if (!('result' in res) || !('trades' in res.result) || typeof res.result.trades !== 'object') {
       throw Error.create('Invalid response from kraken trades endpoint.', Error.MODULE_ERROR, null);
     }
-    const result = Object.keys(res.result.trades || {}).map((tradeId) => {
+    const trades = [];
+    for (const tradeId in res.result.trades) {
       const trade = res.result.trades[tradeId];
       if (trade.time <= fromDateTime.getTime() / 1000 || trade.time >= toDateTime.getTime() / 1000) {
-        return null;
+        continue;
       }
-      return convertFromKrakenTrade(tradeId, trade);
-    }).filter(trade => trade !== null);
+      
+      trades.push(convertFromKrakenTrade(tradeId, trade));
+    }
 
-    callback(null, result);
+    callback(null, trades);
   });
 };
 

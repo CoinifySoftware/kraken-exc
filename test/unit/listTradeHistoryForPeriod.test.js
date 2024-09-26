@@ -37,7 +37,7 @@ describe('#listTradeHistoryForPeriod', function () {
         time: Date.now() / 1000,
         type: 'buy',
         ordertype: 'limit',
-        price: '30010.00000',
+        price: '3001.00000',
         cost: '300.10000',
         fee: '0.00000',
         vol: '0.01000000',
@@ -53,7 +53,7 @@ describe('#listTradeHistoryForPeriod', function () {
         time: 0,
         type: 'buy',
         ordertype: 'limit',
-        price: '3010.00000',
+        price: '3001.00000',
         cost: '300.10000',
         fee: '0.00000',
         vol: '0.01000000',
@@ -61,7 +61,23 @@ describe('#listTradeHistoryForPeriod', function () {
         misc: '',
         trade_id: 39482674,
         maker: true
-      }
+      },
+      'TYWJEG-FL4SZ-3FKGH6': {
+        ordertxid: 'OAELML-BW3P3-BUCMWZ',
+        postxid: 'TAH2SE-MEIF5-CFI7LT',
+        pair: 'XXBTZUSD',
+        time: Date.now() / 1000,
+        type: 'sell',
+        ordertype: 'limit',
+        price: '3001.00000',
+        cost: '300.10000',
+        fee: '0.00000',
+        vol: '0.01000000',
+        margin: '0.00000',
+        misc: '',
+        trade_id: 39482674,
+        maker: true
+      },
     };
     getTradesResponse = {
       error: [],
@@ -85,14 +101,14 @@ describe('#listTradeHistoryForPeriod', function () {
   });
 
   it('should only get trades in the given range ', () => {
-    getTradesResponse.result = { result: { trades } };
+    getTradesResponse.result = {result: {trades}};
     reqStub.yields(null, {}, JSON.stringify(getTradesResponse));
 
     const from = new Date();
     from.setTime(from.getTime() - 60 * 60 * 1000);
 
     const to = new Date();
-    kraken.listTradeHistoryForPeriod(from, to, function (err, trades){
+    kraken.listTradeHistoryForPeriod(from, to, function (err, trades) {
 
       expect(reqStub.calledOnce).to.equal(true);
       expect(reqStub.firstCall.args[0]).to.containSubset({
@@ -104,9 +120,16 @@ describe('#listTradeHistoryForPeriod', function () {
 
       expect(err).to.eql(null);
       expect(trades).to.be.an('Array');
-      expect(trades).length(2);
+      expect(trades).length(3);
 
       //TODO: Verify amounts
+      for (const trade of trades) {
+        if (trade.type === 'buy') {
+          expect(trade.quoteAmount).eql(-30010);
+        }else{
+          expect(trade.quoteAmount).eql(30010);
+        }
+      }
     });
   });
 });
