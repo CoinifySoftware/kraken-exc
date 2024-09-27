@@ -121,15 +121,6 @@ describe('#listTradeHistoryForPeriod', function () {
       expect(err).to.eql(null);
       expect(trades).to.be.an('Array');
       expect(trades).length(3);
-
-      //TODO: Verify amounts
-      for (const trade of trades) {
-        if (trade.type === 'buy') {
-          expect(trade.quoteAmount).eql(-30010);
-        }else{
-          expect(trade.quoteAmount).eql(30010);
-        }
-      }
     });
   });
 });

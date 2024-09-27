@@ -117,7 +117,7 @@ describe('#ApiResponseConverter', function () {
         time: Date.now()/1000,
         type: 'buy',
         ordertype: 'limit',
-        price: '30010.00000',
+        price: '30.00000',
         cost: '300.10000',
         fee: '0.00000',
         vol: '0.01000000',
@@ -132,6 +132,10 @@ describe('#ApiResponseConverter', function () {
         type: 'buy',
         baseCurrency: 'ETH'
       });
+      
+      expect(trade.type).eql('buy');
+      expect(trade.state).eql('closed');
+      expect(trade.baseAmount).eql(30100)
     });
   });
 
