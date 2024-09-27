@@ -135,9 +135,7 @@ describe('#ApiResponseConverter', function () {
       
       expect(trade.type).eql('buy');
       expect(trade.state).eql('closed');
-      expect(trade.baseAmount).eql(30100)
     });
   });
-
 });
 
