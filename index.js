@@ -651,7 +651,7 @@ Kraken.prototype.listTradeHistoryForPeriod = function (fromDateTime, toDateTime,
     }
 
     if (!('result' in res) || !('trades' in res.result) || typeof res.result.trades !== 'object') {
-      throw Error.create('Invalid response from kraken trades endpoint.', Error.MODULE_ERROR, null);
+      return callback(Error.create('Invalid response from kraken trades endpoint.', Error.MODULE_ERROR, null), null);
     }
     const trades = [];
     for (const tradeId in res.result.trades) {
