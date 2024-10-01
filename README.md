@@ -319,7 +319,7 @@ kraken.listTradeHistoryForPeriod(start, end, function (err, trades) {
     console.log(err);
   } else {
     console.log(trades);
-    console.log(trades.length); // to see the number of transactions found
+    console.log(trades.length);
   }
 });
 ```
