@@ -77,7 +77,7 @@ describe('#listTradeHistoryForPeriod', function () {
         misc: '',
         trade_id: 39482674,
         maker: true
-      },
+      }
     };
     getTradesResponse = {
       error: [],
@@ -93,15 +93,14 @@ describe('#listTradeHistoryForPeriod', function () {
   });
 
   it('should make sure only Date instances are valid fromDateTime and toDateTime', () => {
-    expect(() => {
-      kraken.listTradeHistoryForPeriod('123', {}, function (err) {
-        expect(err).to.not.be.empty();
-      });
-    }).throw('fromDateTime and toDateTime must be an instance of Date.');
+    kraken.listTradeHistoryForPeriod('123', {}, function (err, trades) {
+      expect(err.message).eql('fromDateTime and toDateTime must be an instance of Date.');
+      expect(trades).eql(null);
+    });
   });
 
   it('should only get trades in the given range ', () => {
-    getTradesResponse.result = {result: {trades}};
+    getTradesResponse.result = { result: { trades } };
     reqStub.yields(null, {}, JSON.stringify(getTradesResponse));
 
     const from = new Date();
@@ -109,7 +108,6 @@ describe('#listTradeHistoryForPeriod', function () {
 
     const to = new Date();
     kraken.listTradeHistoryForPeriod(from, to, function (err, trades) {
-
       expect(reqStub.calledOnce).to.equal(true);
       expect(reqStub.firstCall.args[0]).to.containSubset({
         form: {

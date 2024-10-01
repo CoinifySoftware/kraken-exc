@@ -637,7 +637,7 @@ Kraken.prototype.placeTrade = function (baseAmount, limitPrice, baseCurrency, qu
  */
 Kraken.prototype.listTradeHistoryForPeriod = function (fromDateTime, toDateTime, callback) {
   if (Object.prototype.toString.call(fromDateTime) !== '[object Date]' || Object.prototype.toString.call(toDateTime) !== '[object Date]') {
-    throw Error.create('fromDateTime and toDateTime must be an instance of Date.', Error.MODULE_ERROR, null);
+     return callback(Error.create('fromDateTime and toDateTime must be an instance of Date.', Error.MODULE_ERROR, null), null);
   }
 
   Request.post(this, 'TradesHistory', {
