@@ -268,7 +268,7 @@ Kraken.prototype.getBalance = function (callback) {
           available,
           total
         });
-      } catch(err) {
+      } catch( err) {
         return callback(err);
       }
     });
