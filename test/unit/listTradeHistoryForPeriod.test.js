@@ -65,7 +65,7 @@ describe('#listTradeHistoryForPeriod', function () {
       'TYWJEG-FL4SZ-3FKGH6': {
         ordertxid: 'OAELML-BW3P3-BUCMWZ',
         postxid: 'TAH2SE-MEIF5-CFI7LT',
-        pair: 'XXBTZUSD',
+        pair: 'XBTZUSD',
         time: Date.now() / 1000,
         type: 'sell',
         ordertype: 'limit',
@@ -119,6 +119,12 @@ describe('#listTradeHistoryForPeriod', function () {
       expect(err).to.eql(null);
       expect(trades).to.be.an('Array');
       expect(trades).length(3);
+
+      //Should handle 3 lettered currencies
+      expect(trades[2]).to.containSubset({
+        baseCurrency: 'BTC',
+        quoteCurrency: 'USD'
+      });
     });
   });
 });
