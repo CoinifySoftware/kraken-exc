@@ -257,7 +257,7 @@ Kraken.prototype.getBalance = function (callback) {
               toSubtractFromTotal[baseCurrency] += coinifyCurrency.toSmallestSubunit(order.vol, baseCurrency);
               break;
             case 'buy':
-              toSubtractFromTotal[quoteCurrency] += coinifyCurrency.toSmallestSubunit(order.descr.price, quoteCurrency);
+              toSubtractFromTotal[quoteCurrency] +=coinifyCurrency.toSmallestSubunit(order.descr.price, quoteCurrency);
               break;
           }
         });
@@ -268,7 +268,7 @@ Kraken.prototype.getBalance = function (callback) {
           available,
           total
         });
-      } catch (err) {
+      } catch(err) {
         return callback(err);
       }
     });
@@ -524,13 +524,13 @@ Kraken.prototype._listTransactionsRecursive = function (type, start, knownTransa
 
       // Decide how to progress: Continue if there are more ledger entries, otherwise just stop now.
       if (_.isEmpty(response.ledger)) {
-        // No more ledger entries to be found. Let's just return them now!
+      // No more ledger entries to be found. Let's just return them now!
         return callback(null, allTransactions);
       }
 
       // There are more entries to be found, let's call this function recursively and add the results to our list
       return this._listTransactionsRecursive(type, start, allTransactions, callback);
-    } catch (err) {
+    } catch(err) {
       return callback(err);
     }
   });
