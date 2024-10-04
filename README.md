@@ -24,7 +24,7 @@ const kraken = new Kraken({
 
 The constructor initializes 3 more parameters: `host`, `timeout` and `supportedCurrencies` . If not provided at model declaration, these parameters will be set to `https://api.kraken.com`, `5000` and `['ETH', 'BTC', 'EUR', 'USD']` respectively.
 
-The `supportedCurrencies` property should be an array of strings where each string is a currency code such as `BTC` or `USD`. 
+The `supportedCurrencies` property should be an array of strings where each string is a currency code such as `BTC` or `USD`.
 
 *Note*: All data and errors are returned as objects, not as stringified JSON.
 
@@ -299,6 +299,49 @@ kraken.placeTrade(-1250000, 460.00, 'BTC', 'USD', function (err, data) {
 ```
 
 
+#### Trade History
+Returns a list of trade objects, starting and ending at the provided time, fetched from your Kraken account.
+
+***NOTE:*** The Kraken API has a limit of 1000 objects per response and a limit of 600 requests per 10 min. You risk to go over the requests limit and getting your API IP blocked from Kraken.
+
+##### Input parameters
+```js
+const start = new Date()
+start.setTime(start.getTime() - 60 * 60 * 1000);
+
+const end = new Date();
+```
+##### Example call
+
+```js
+kraken.listTradeHistoryForPeriod(start, end, function (err, trades) {
+  if (err) {
+    console.log(err);
+  } else {
+    console.log(trades);
+    console.log(trades.length);
+  }
+});
+```
+##### Response on success
+```js
+[
+  {
+    externalId: '2345-3456-457-5678',
+    timestamp: '2015-12-20T12:16:54.000Z',
+    state: 'closed',
+    baseCurrency: 'ETH',
+    baseAmount: 111111.11,
+    feeAmount: 111,
+    quoteCurrency: 'EUR',
+    quoteAmount: 11,
+    type: 'buy',
+    orderType: 'limit',
+    raw: {},
+  },
+   // ... more trades
+]
+```
 
 Enjoy!
 

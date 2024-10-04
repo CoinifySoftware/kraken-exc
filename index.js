@@ -2,7 +2,12 @@ const _ = require('lodash');
 const coinifyCurrency = require('@coinify/currency');
 const Error = require('./lib/ErrorHelper');
 const Request = require('./lib/RequestHelper');
-const { convertFromKrakenCurrencyCode, convertToKrakenCurrencyCode, convertFromKrakenTransaction } = require('./lib/ApiResponseConverter');
+const {
+  convertFromKrakenCurrencyCode,
+  convertToKrakenCurrencyCode,
+  convertFromKrakenTransaction,
+  convertFromKrakenTrade
+} = require('./lib/ApiResponseConverter');
 const consoleLogLevel = require('console-log-level');
 const constants = require('./lib/constants');
 
@@ -600,6 +605,65 @@ Kraken.prototype.placeTrade = function (baseAmount, limitPrice, baseCurrency, qu
     };
 
     return callback(null, trade);
+  });
+};
+
+/**
+ * Lists Trade History for a given period.
+ * 
+ * @typedef {Function} CallbackFn
+ *
+ * @param {Error|null} error
+ * @param {{
+ *   externalId: string;
+ *   timestamp: string;
+ *   state: 'closed' | string;
+ *   baseCurrency: string;
+ *   baseAmount: number;
+ *   feeAmount: number;
+ *   quoteCurrency: string;
+ *   quoteAmount: number;
+ *   type: 'buy' | 'sell';
+ *   orderType: string;
+ *   raw: any;
+ * }[]} trade - An array of trade details.
+ *
+ * @returns {void}
+ */
+/**
+ * @param {Date}   fromDateTime The start DateTime
+ * @param {Date}   toDateTime The end DateTime
+ * @param {CallbackFn}  callback Returns the customized data object of the trades in the given period
+ */
+Kraken.prototype.listTradeHistoryForPeriod = function (fromDateTime, toDateTime, callback) {
+  if (Object.prototype.toString.call(fromDateTime) !== '[object Date]' || Object.prototype.toString.call(toDateTime) !== '[object Date]') {
+     return callback(Error.create('fromDateTime and toDateTime must be an instance of Date.', Error.MODULE_ERROR, null), null);
+  }
+
+  Request.post(this, 'TradesHistory', {
+    type: 'all',
+    trades: false, //TODO: Verify that we do not require positional data
+    start: fromDateTime.getTime() / 1000,
+    end: toDateTime.getTime() / 1000
+  }, (err, res) => {
+    if (err) {
+      return callback(err, null);
+    }
+
+    if (!('result' in res) || !('trades' in res.result) || typeof res.result.trades !== 'object') {
+      return callback(Error.create('Invalid response from kraken trades endpoint.', Error.MODULE_ERROR, null), null);
+    }
+    const trades = [];
+    for (const tradeId in res.result.trades) {
+      const trade = res.result.trades[tradeId];
+      if (trade.time <= fromDateTime.getTime() / 1000 || trade.time >= toDateTime.getTime() / 1000) {
+        continue;
+      }
+      
+      trades.push(convertFromKrakenTrade(tradeId, trade));
+    }
+
+    callback(null, trades);
   });
 };
 
