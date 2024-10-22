@@ -655,7 +655,7 @@ Kraken.prototype.listTradeHistoryForPeriod = function (fromDateTime, toDateTime,
     }
     
     if (Object.keys(res.result.trades || {}).length === 0){
-      callback(null, []);
+      return callback(null, []);
     }
     
     const trades = [];
