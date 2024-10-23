@@ -81,7 +81,7 @@ describe('#listTradeHistoryForPeriod', function () {
     };
     getTradesResponse = {
       error: [],
-      result: {}
+      trades: {}
     };
     reqStub = sinon.stub(request, 'post');
     done();
