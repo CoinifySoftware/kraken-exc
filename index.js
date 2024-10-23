@@ -650,17 +650,17 @@ Kraken.prototype.listTradeHistoryForPeriod = function (fromDateTime, toDateTime,
       return callback(err, null);
     }
 
-    if (!res || !res.result || !res.result.trades || typeof res.result.trades !== 'object') {
+    if (!res.trades || typeof res.trades !== 'object') {
       return callback(Error.create('Invalid response from kraken trades endpoint.', Error.MODULE_ERROR, res), null);
     }
     
-    if (Object.keys(res.result.trades || {}).length === 0){
+    if (Object.keys(res.trades || {}).length === 0){
       return callback(null, []);
     }
     
     const trades = [];
-    for (const tradeId in res.result.trades) {
-      const trade = res.result.trades[tradeId];
+    for (const tradeId in res.trades) {
+      const trade = res.trades[tradeId];
       if (trade.time <= fromDateTime.getTime() / 1000 || trade.time >= toDateTime.getTime() / 1000) {
         continue;
       }

@@ -100,7 +100,7 @@ describe('#listTradeHistoryForPeriod', function () {
   });
 
   it('should only get trades in the given range ', () => {
-    getTradesResponse.result = { result: { trades } };
+    getTradesResponse.result = { trades };
     reqStub.yields(null, {}, JSON.stringify(getTradesResponse));
 
     const from = new Date();
