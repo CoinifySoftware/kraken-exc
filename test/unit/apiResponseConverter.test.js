@@ -26,7 +26,7 @@ describe('#ApiResponseConverter', function () {
       expect(convertFromKrakenCurrencyCode('ZEUR')).to.equal('EUR');
       expect(convertFromKrakenCurrencyCode('XBT')).to.equal('BTC');
       expect(convertFromKrakenCurrencyCode('XXBT')).to.equal('BTC');
-      expect(convertFromKrakenCurrencyCode('USDC')).to.equal('USD');
+      expect(convertFromKrakenCurrencyCode('USDC')).to.equal('USDC');
       done();
     });
 
