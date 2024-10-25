@@ -77,6 +77,22 @@ describe('#listTradeHistoryForPeriod', function () {
         misc: '',
         trade_id: 39482674,
         maker: true
+      },
+      'TXWJEG-FL4SZ-3FKGH6': {
+        ordertxid: 'OAELML-BW3P3-BUCMWZ',
+        postxid: 'TAH2SE-MEIF5-CFI7LT',
+        pair: 'XBTUSDC',
+        time: Date.now() / 1000,
+        type: 'sell',
+        ordertype: 'limit',
+        price: '3001.00000',
+        cost: '300.10000',
+        fee: '0.00000',
+        vol: '0.01000000',
+        margin: '0.00000',
+        misc: '',
+        trade_id: 39482674,
+        maker: true
       }
     };
     getTradesResponse = {
@@ -108,22 +124,28 @@ describe('#listTradeHistoryForPeriod', function () {
 
     const to = new Date();
     kraken.listTradeHistoryForPeriod(from, to, function (err, trades) {
-      expect(reqStub.calledOnce).to.equal(true);
-      expect(reqStub.firstCall.args[0]).to.containSubset({
+      expect(reqStub.calledOnce).equal(true);
+      expect(reqStub.firstCall.args[0]).containSubset({
         form: {
           start: from.getTime() / 1000,
           end: to.getTime() / 1000
         }
       });
 
-      expect(err).to.eql(null);
-      expect(trades).to.be.an('Array');
-      expect(trades).length(3);
+      expect(err).eql(null);
+      expect(trades).an('Array');
+      expect(trades).length(4);
 
       //Should handle 3 lettered currencies
-      expect(trades[2]).to.containSubset({
+      expect(trades[2]).containSubset({
         baseCurrency: 'BTC',
         quoteCurrency: 'USD'
+      });
+
+      //Handle USDC
+      expect(trades[3]).containSubset({
+        baseCurrency: 'BTC',
+        quoteCurrency: 'USDC'
       });
     });
   });

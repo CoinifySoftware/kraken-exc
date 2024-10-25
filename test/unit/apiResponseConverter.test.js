@@ -111,7 +111,8 @@ describe('#ApiResponseConverter', function () {
 
     it('convertFromKrakenTrade', () => {
       const id = 'TCWJEG-FL4SZ-3FKGH6';
-      const trade = convertFromKrakenTrade(id, { ordertxid: 'OQCLML-BW3P3-BUCMWZ',
+      const [ err, trade ] = convertFromKrakenTrade(id, {
+        ordertxid: 'OQCLML-BW3P3-BUCMWZ',
         postxid: 'TKH2SE-M7IF5-CFI7LT',
         pair: 'XETHZUSD',
         time: Date.now()/1000,
@@ -127,12 +128,14 @@ describe('#ApiResponseConverter', function () {
         maker: true
       });
 
+      expect(err).eql(null);
+
       expect(trade).containSubset({
         externalId: id,
         type: 'buy',
         baseCurrency: 'ETH'
       });
-      
+
       expect(trade.type).eql('buy');
       expect(trade.state).eql('closed');
     });

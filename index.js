@@ -17,7 +17,7 @@ const Kraken = function (settings) {
   this.otp = settings.otp;
   this.host = settings.host || constants.HOST;
   this.timeout = settings.timeout || constants.REQUEST_TIMEOUT;
-  this.logger = settings.logger || consoleLogLevel({ level: process.env.LOG_LEVEL || 'debug' });
+  this.logger = settings.logger || consoleLogLevel({level: process.env.LOG_LEVEL || 'debug'});
 
   const normalizedSupportedCurrencies = settings.supportedCurrencies || constants.DEFAULT_SUPPORTED_CURRENCIES;
   this.supportedCurrencies = normalizedSupportedCurrencies.map(convertToKrakenCurrencyCode);
@@ -36,7 +36,7 @@ function validateCurrenciesConstructPair(baseCurrency, quoteCurrency) {
   baseCurrency = baseCurrency.toUpperCase();
   quoteCurrency = quoteCurrency.toUpperCase();
 
-  if (!_.includes([ 'BTC', 'BSV', 'ETH', 'USDC', 'USDT', 'TRX' ], baseCurrency) || !_.includes([ 'USD', 'EUR' ], quoteCurrency)) {
+  if (!_.includes(['BTC', 'BSV', 'ETH', 'USDC', 'USDT', 'TRX'], baseCurrency) || !_.includes(['USD', 'EUR'], quoteCurrency)) {
     return {
       error: Error.create('Kraken only supports BTC, ETH, BSV, USDT, USDC or TRX as base currency and USD or EUR as quote currency.',
         Error.MODULE_ERROR, null)
@@ -48,9 +48,9 @@ function validateCurrenciesConstructPair(baseCurrency, quoteCurrency) {
 
   let pair;
   // Map to inconsistent Kraken pairs
-  if ([ 'BTC', 'ETH' ].includes(baseCurrency)) {
+  if (['BTC', 'ETH'].includes(baseCurrency)) {
     pair = `X${baseCurrencyKraken}Z${quoteCurrency}`;
-  } else if ([ 'USDT' ].includes(baseCurrency) && [ 'USD' ].includes(quoteCurrency)) {
+  } else if (['USDT'].includes(baseCurrency) && ['USD'].includes(quoteCurrency)) {
     pair = `${baseCurrencyKraken}Z${quoteCurrency}`;
   } else {
     pair = `${baseCurrencyKraken}${quoteCurrency}`;
@@ -97,7 +97,7 @@ Kraken.prototype.getOrderBook = function (baseCurrency, quoteCurrency, callback)
   }
 
   Request.get(this, 'Depth', {
-    qs: { pair: currencies.pair }
+    qs: {pair: currencies.pair}
   }, (err, res) => {
     if (err) {
       return callback(err);
@@ -162,7 +162,7 @@ Kraken.prototype.getTicker = function (baseCurrency, quoteCurrency, callback) {
   }
 
   Request.get(this, 'Ticker', {
-    qs: { pair: currencies.pair }
+    qs: {pair: currencies.pair}
   }, (err, res) => {
     if (err) {
       return callback(err);
@@ -257,7 +257,7 @@ Kraken.prototype.getBalance = function (callback) {
               toSubtractFromTotal[baseCurrency] += coinifyCurrency.toSmallestSubunit(order.vol, baseCurrency);
               break;
             case 'buy':
-              toSubtractFromTotal[quoteCurrency] +=coinifyCurrency.toSmallestSubunit(order.descr.price, quoteCurrency);
+              toSubtractFromTotal[quoteCurrency] += coinifyCurrency.toSmallestSubunit(order.descr.price, quoteCurrency);
               break;
           }
         });
@@ -268,7 +268,7 @@ Kraken.prototype.getBalance = function (callback) {
           available,
           total
         });
-      } catch( err) {
+      } catch (err) {
         return callback(err);
       }
     });
@@ -475,7 +475,7 @@ Kraken.prototype.listTransactions = function (latestTransaction, callback) {
       const transactions = withdrawals.concat(deposits);
 
       // Sort transactions by earliest first
-      const transactionsSorted = _.sortBy(transactions, [ 'raw.time' ]);
+      const transactionsSorted = _.sortBy(transactions, ['raw.time']);
 
       // Return sorted transactions to caller
       return callback(null, transactionsSorted);
@@ -524,13 +524,13 @@ Kraken.prototype._listTransactionsRecursive = function (type, start, knownTransa
 
       // Decide how to progress: Continue if there are more ledger entries, otherwise just stop now.
       if (_.isEmpty(response.ledger)) {
-      // No more ledger entries to be found. Let's just return them now!
+        // No more ledger entries to be found. Let's just return them now!
         return callback(null, allTransactions);
       }
 
       // There are more entries to be found, let's call this function recursively and add the results to our list
       return this._listTransactionsRecursive(type, start, allTransactions, callback);
-    } catch(err) {
+    } catch (err) {
       return callback(err);
     }
   });
@@ -610,7 +610,7 @@ Kraken.prototype.placeTrade = function (baseAmount, limitPrice, baseCurrency, qu
 
 /**
  * Lists Trade History for a given period.
- * 
+ *
  * @typedef {Function} CallbackFn
  *
  * @param {Error|null} error
@@ -637,29 +637,29 @@ Kraken.prototype.placeTrade = function (baseAmount, limitPrice, baseCurrency, qu
  */
 Kraken.prototype.listTradeHistoryForPeriod = function (fromDateTime, toDateTime, callback) {
   if (Object.prototype.toString.call(fromDateTime) !== '[object Date]' || Object.prototype.toString.call(toDateTime) !== '[object Date]') {
-     return callback(Error.create('fromDateTime and toDateTime must be an instance of Date.', Error.MODULE_ERROR, null), null);
+    return callback(Error.create('fromDateTime and toDateTime must be an instance of Date.', Error.MODULE_ERROR, null), null);
   }
 
   Request.post(this, 'TradesHistory', {
     type: 'all',
-    trades: false, //TODO: Verify that we do not require positional data
+    trades: false,
     start: fromDateTime.getTime() / 1000,
     end: toDateTime.getTime() / 1000
   }, (err, res) => {
     if (err) {
       return callback(err, null);
     }
-    
+
     const { trades } = res;
 
     if (!trades || typeof trades !== 'object') {
       return callback(Error.create('Invalid response from kraken trades endpoint.', Error.MODULE_ERROR, res), null);
     }
-    
-    if (Object.keys(trades || {}).length === 0){
+
+    if (Object.keys(trades).length === 0) {
       return callback(null, []);
     }
-    
+
     const validTrades = [];
     for (const tradeId in trades) {
       const trade = trades[tradeId];
@@ -667,7 +667,13 @@ Kraken.prototype.listTradeHistoryForPeriod = function (fromDateTime, toDateTime,
         continue;
       }
 
-      validTrades.push(convertFromKrakenTrade(tradeId, trade));
+      const [err, converted] = convertFromKrakenTrade(tradeId, trade);
+
+      if (err && !converted) {
+        return callback(Error.create(err, Error.MODULE_ERROR, trade), null);
+      }
+      
+      validTrades.push(converted);
     }
 
     callback(null, validTrades);
