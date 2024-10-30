@@ -120,6 +120,17 @@ describe('#listTradeHistoryForPeriod', function () {
         ordertype: 'limit',
         price: '2333.92',
         status: 'closed'
+      },
+      'OOEEE3QCQ-SOJXH-NWMZZF': {
+        fee: '104.68207',
+        vol: '24.91800000',
+        cost: '58156.69775',
+        time: Date.now() / 1000,
+        pair: 'USDCZEUR',
+        type: 'buy',
+        ordertype: 'limit',
+        price: '2333.92',
+        status: 'closed'
       }
     };
     getTradesResponse = {
@@ -161,7 +172,7 @@ describe('#listTradeHistoryForPeriod', function () {
 
       expect(err).eql(null);
       expect(trades).an('Array');
-      expect(trades).length(6);
+      expect(trades).length(7);
       expect(trades).containSubset([
         {
           baseCurrency: 'ETH',
@@ -185,6 +196,10 @@ describe('#listTradeHistoryForPeriod', function () {
         },
         {
           baseCurrency: 'ETH',
+          quoteCurrency: 'EUR'
+        },
+        {
+          baseCurrency: 'USDC',
           quoteCurrency: 'EUR'
         }
       ]);
