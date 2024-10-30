@@ -163,9 +163,18 @@ describe('#listTradeHistoryForPeriod', function () {
       expect(trades).an('Array');
       expect(trades).length(6);
       expect(trades).containSubset([
-        {},
-        {},
-        {},
+        {
+          baseCurrency: 'ETH',
+          quoteCurrency: 'USD'
+        },
+        {
+          baseCurrency: 'EUR',
+          quoteCurrency: 'USD'
+        },
+        {
+          baseCurrency: 'BTC',
+          quoteCurrency: 'USD'
+        },
         {
           baseCurrency: 'BTC',
           quoteCurrency: 'USD'
