@@ -33,7 +33,7 @@ describe('#listTradeHistoryForPeriod', function () {
       'TAWJEG-FL4SZ-3FKGH6': {
         ordertxid: 'OACLML-BW3P3-BUCMWZ',
         postxid: 'TAH2SE-M7IF5-CFI7LT',
-        pair: 'XXBTZUSD',
+        pair: 'ZEURZUSD',
         time: Date.now() / 1000,
         type: 'buy',
         ordertype: 'limit',
@@ -81,6 +81,22 @@ describe('#listTradeHistoryForPeriod', function () {
       'TXWJEG-FL4SZ-3FKGH6': {
         ordertxid: 'OAELML-BW3P3-BUCMWZ',
         postxid: 'TAH2SE-MEIF5-CFI7LT',
+        pair: 'XBTZUSD',
+        time: Date.now() / 1000,
+        type: 'sell',
+        ordertype: 'limit',
+        price: '3001.00000',
+        cost: '300.10000',
+        fee: '0.00000',
+        vol: '0.01000000',
+        margin: '0.00000',
+        misc: '',
+        trade_id: 39482674,
+        maker: true
+      },
+      'TXWJEG-FL4SZ-3FKYH6': {
+        ordertxid: 'OAELML-BW3P3-BUCMWZ',
+        postxid: 'TAH2SE-MEIF5-CFI7LT',
         pair: 'XBTUSDC',
         time: Date.now() / 1000,
         type: 'sell',
@@ -93,6 +109,17 @@ describe('#listTradeHistoryForPeriod', function () {
         misc: '',
         trade_id: 39482674,
         maker: true
+      },
+      'OO3QCQ-SOJXH-NWMZZF': {
+        fee: '104.68207',
+        vol: '24.91800000',
+        cost: '58156.69775',
+        time: Date.now() / 1000,
+        pair: 'XETHZEUR',
+        type: 'buy',
+        ordertype: 'limit',
+        price: '2333.92',
+        status: 'closed'
       }
     };
     getTradesResponse = {
@@ -134,19 +161,24 @@ describe('#listTradeHistoryForPeriod', function () {
 
       expect(err).eql(null);
       expect(trades).an('Array');
-      expect(trades).length(4);
-
-      //Should handle 3 lettered currencies
-      expect(trades[2]).containSubset({
-        baseCurrency: 'BTC',
-        quoteCurrency: 'USD'
-      });
-
-      //Handle USDC
-      expect(trades[3]).containSubset({
-        baseCurrency: 'BTC',
-        quoteCurrency: 'USDC'
-      });
+      expect(trades).length(6);
+      expect(trades).containSubset([
+        {},
+        {},
+        {},
+        {
+          baseCurrency: 'BTC',
+          quoteCurrency: 'USD'
+        },
+        {
+          baseCurrency: 'BTC',
+          quoteCurrency: 'USD'
+        },
+        {
+          baseCurrency: 'ETH',
+          quoteCurrency: 'EUR'
+        }
+      ]);
     });
   });
 });
