@@ -257,7 +257,7 @@ Kraken.prototype.getBalance = function (callback) {
               toSubtractFromTotal[baseCurrency] += coinifyCurrency.toSmallestSubunit(order.vol, baseCurrency);
               break;
             case 'buy':
-              toSubtractFromTotal[quoteCurrency] +=coinifyCurrency.toSmallestSubunit(order.descr.price, quoteCurrency);
+              toSubtractFromTotal[quoteCurrency] += coinifyCurrency.toSmallestSubunit(order.descr.price, quoteCurrency);
               break;
           }
         });
@@ -268,7 +268,7 @@ Kraken.prototype.getBalance = function (callback) {
           available,
           total
         });
-      } catch( err) {
+      } catch (err) {
         return callback(err);
       }
     });
@@ -524,13 +524,13 @@ Kraken.prototype._listTransactionsRecursive = function (type, start, knownTransa
 
       // Decide how to progress: Continue if there are more ledger entries, otherwise just stop now.
       if (_.isEmpty(response.ledger)) {
-      // No more ledger entries to be found. Let's just return them now!
+        // No more ledger entries to be found. Let's just return them now!
         return callback(null, allTransactions);
       }
 
       // There are more entries to be found, let's call this function recursively and add the results to our list
       return this._listTransactionsRecursive(type, start, allTransactions, callback);
-    } catch(err) {
+    } catch (err) {
       return callback(err);
     }
   });
@@ -610,7 +610,7 @@ Kraken.prototype.placeTrade = function (baseAmount, limitPrice, baseCurrency, qu
 
 /**
  * Lists Trade History for a given period.
- * 
+ *
  * @typedef {Function} CallbackFn
  *
  * @param {Error|null} error
@@ -637,37 +637,42 @@ Kraken.prototype.placeTrade = function (baseAmount, limitPrice, baseCurrency, qu
  */
 Kraken.prototype.listTradeHistoryForPeriod = function (fromDateTime, toDateTime, callback) {
   if (Object.prototype.toString.call(fromDateTime) !== '[object Date]' || Object.prototype.toString.call(toDateTime) !== '[object Date]') {
-     return callback(Error.create('fromDateTime and toDateTime must be an instance of Date.', Error.MODULE_ERROR, null), null);
+    return callback(Error.create('fromDateTime and toDateTime must be an instance of Date.', Error.MODULE_ERROR, null), null);
   }
 
   Request.post(this, 'TradesHistory', {
     type: 'all',
-    trades: false, //TODO: Verify that we do not require positional data
+    trades: false,
     start: fromDateTime.getTime() / 1000,
     end: toDateTime.getTime() / 1000
   }, (err, res) => {
     if (err) {
       return callback(err, null);
     }
-    
+
     const { trades } = res;
 
-    if (!trades || typeof trades !== 'object') {
+    if(!trades || typeof trades !== 'object') {
       return callback(Error.create('Invalid response from kraken trades endpoint.', Error.MODULE_ERROR, res), null);
     }
-    
-    if (Object.keys(trades || {}).length === 0){
+
+    if (Object.keys(trades).length === 0) {
       return callback(null, []);
     }
-    
+
     const validTrades = [];
-    for (const tradeId in trades) {
-      const trade = trades[tradeId];
-      if (trade.time < (fromDateTime.getTime() / 1000) || trade.time > (toDateTime.getTime() / 1000)) {
+    for (const [ tradeId, trade ] of Object.entries(trades)) {
+      if (trade.time < fromDateTime.getTime() / 1000 || trade.time > toDateTime.getTime() / 1000) {
         continue;
       }
 
-      validTrades.push(convertFromKrakenTrade(tradeId, trade));
+      const [ err, converted ] = convertFromKrakenTrade(tradeId, trade);
+
+      if (err && !converted) {
+        return callback(Error.create(err, Error.MODULE_ERROR, trade), null);
+      }
+
+      validTrades.push(converted);
     }
 
     callback(null, validTrades);
