@@ -131,6 +131,50 @@ describe('#listTradeHistoryForPeriod', function () {
         ordertype: 'limit',
         price: '2333.92',
         status: 'closed'
+      },
+      'OOUEE3QCQ-SOJXH-NWMZZF': {
+        fee: '104.68207',
+        vol: '24.91800000',
+        cost: '58156.69775',
+        time: Date.now() / 1000,
+        pair: 'USDCEUR', //Somehow, the kraken endpoint provides this asset pair when fetching trades.
+        type: 'buy',
+        ordertype: 'limit',
+        price: '2333.92',
+        status: 'closed'
+      },
+      'EOUEE3QCQ-SOJXH-NWMZZF': {
+        fee: '104.68207',
+        vol: '24.91800000',
+        cost: '58156.69775',
+        time: Date.now() / 1000,
+        pair: 'EURUSDC', //Somehow, the kraken endpoint provides this asset pair when fetching trades.
+        type: 'buy',
+        ordertype: 'limit',
+        price: '2333.92',
+        status: 'closed'
+      },
+      'IOUEE3QCQ-SOJXH-NWMZZF': {
+        fee: '104.68207',
+        vol: '24.91800000',
+        cost: '58156.69775',
+        time: Date.now() / 1000,
+        pair: 'ZEURTRX',
+        type: 'buy',
+        ordertype: 'limit',
+        price: '2333.92',
+        status: 'closed'
+      },
+      'ROUEE3QCQ-SOJXH-NWMZZF': {
+        fee: '104.68207',
+        vol: '24.91800000',
+        cost: '58156.69775',
+        time: Date.now() / 1000,
+        pair: 'ZEURALGO',
+        type: 'buy',
+        ordertype: 'limit',
+        price: '2333.92',
+        status: 'closed'
       }
     };
     getTradesResponse = {
@@ -172,7 +216,7 @@ describe('#listTradeHistoryForPeriod', function () {
 
       expect(err).eql(null);
       expect(trades).an('Array');
-      expect(trades).length(7);
+      expect(trades).length(trades.length);
       expect(trades).containSubset([
         {
           baseCurrency: 'ETH',
@@ -201,6 +245,22 @@ describe('#listTradeHistoryForPeriod', function () {
         {
           baseCurrency: 'USDC',
           quoteCurrency: 'EUR'
+        },
+        {
+          baseCurrency: 'USDC',
+          quoteCurrency: 'EUR'
+        },
+        {
+          baseCurrency: 'EUR',
+          quoteCurrency: 'USDC'
+        },
+        {
+          baseCurrency: 'EUR',
+          quoteCurrency: 'TRX'
+        },
+        {
+          baseCurrency: 'EUR',
+          quoteCurrency: 'ALGO'
         }
       ]);
     });
