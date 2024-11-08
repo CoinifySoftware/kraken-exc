@@ -159,7 +159,7 @@ describe('#listTradeHistoryForPeriod', function () {
         vol: '24.91800000',
         cost: '58156.69775',
         time: Date.now() / 1000,
-        pair: 'ZEURTRX', //Somehow, the kraken endpoint provides this asset pair when fetching trades.
+        pair: 'ZEURTRX',
         type: 'buy',
         ordertype: 'limit',
         price: '2333.92',
@@ -170,7 +170,7 @@ describe('#listTradeHistoryForPeriod', function () {
         vol: '24.91800000',
         cost: '58156.69775',
         time: Date.now() / 1000,
-        pair: 'ZEURALGO', //Somehow, the kraken endpoint provides this asset pair when fetching trades.
+        pair: 'ZEURALGO',
         type: 'buy',
         ordertype: 'limit',
         price: '2333.92',
