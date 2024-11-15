@@ -344,7 +344,7 @@ describe('#getOrderBook', function () {
       expect(reqStub.calledOnce).to.equal(false);
       expect(result).to.equal(undefined);
 
-      expect(err.message).to.contain('Kraken only supports BTC, ');
+      expect(err.message).to.contain('Kraken only supports');
       expect(err.code).to.equal(Error.MODULE_ERROR);
       expect(err.cause).to.equal(undefined);
 
@@ -357,12 +357,17 @@ describe('#getOrderBook', function () {
       expect(reqStub.calledOnce).to.equal(false);
       expect(result).to.equal(undefined);
 
-      expect(err.message).to.contain('Kraken only supports BTC, ');
+      expect(err.message).to.contain('Kraken only supports');
       expect(err.code).to.equal(Error.MODULE_ERROR);
       expect(err.cause).to.equal(undefined);
 
       done();
     });
   });
+
+
+  // it('should handle EURETH Inversed Pair', () => {
+  //  
+  // });
 
 });

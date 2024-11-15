@@ -19,7 +19,7 @@ const Kraken = function (settings) {
   this.timeout = settings.timeout || constants.REQUEST_TIMEOUT;
   this.logger = settings.logger || consoleLogLevel({ level: process.env.LOG_LEVEL || 'debug' });
 
-  const normalizedSupportedCurrencies = settings.supportedCurrencies || constants.DEFAULT_SUPPORTED_CURRENCIES;
+  const normalizedSupportedCurrencies = settings.supportedCurrencies || constants.SUPPORTED_BASE_CURRENCIES;
   this.supportedCurrencies = normalizedSupportedCurrencies.map(convertToKrakenCurrencyCode);
 };
 
@@ -36,9 +36,9 @@ function validateCurrenciesConstructPair(baseCurrency, quoteCurrency) {
   baseCurrency = baseCurrency.toUpperCase();
   quoteCurrency = quoteCurrency.toUpperCase();
 
-  if (!_.includes(constants.DEFAULT_SUPPORTED_CURRENCIES, baseCurrency) || !_.includes(constants.DEFAULT_SUPPORTED_CURRENCIES, quoteCurrency)) {
+  if (!_.includes(constants.SUPPORTED_BASE_CURRENCIES, baseCurrency) || !_.includes(constants.SUPPORTED_QUOTE_CURRENCIES, quoteCurrency)) {
     return {
-      error: Error.create('Kraken only supports BTC, ETH, BSV, USDT, USDC or TRX as base currency and USD or EUR as quote currency.',
+      error: Error.create(`Kraken only supports ${constants.SUPPORTED_BASE_CURRENCIES.join(', ')} as base and ${constants.SUPPORTED_QUOTE_CURRENCIES.join(', ')} as quote currencies.`,
         Error.MODULE_ERROR, null)
     };
   }
@@ -47,20 +47,27 @@ function validateCurrenciesConstructPair(baseCurrency, quoteCurrency) {
   const baseCurrencyKraken = baseCurrency === 'BTC' ? 'XBT' : baseCurrency;
 
   let pair;
+  let inversePair = false;
   // Map to inconsistent Kraken pairs
   if ([ 'BTC', 'ETH' ].includes(baseCurrency)) {
     pair = `X${baseCurrencyKraken}Z${quoteCurrency}`;
   } else if ([ 'USDT' ].includes(baseCurrency) && [ 'USD' ].includes(quoteCurrency)) {
     pair = `${baseCurrencyKraken}Z${quoteCurrency}`;
+  }else if ([ 'EUR' ].includes(baseCurrency) && [ 'ETH' ].includes(quoteCurrency)){
+    inversePair = true;
+    pair = `X${quoteCurrency}Z${baseCurrency}`;
   } else {
     pair = `${baseCurrencyKraken}${quoteCurrency}`;
   }
+
+  // const inversePair = constants.INVERSE_CURRENCY_PAIRS[`${quoteCurrency}${baseCurrency}`] || false;
 
   return {
     baseCurrency,
     quoteCurrency,
     baseCurrencyKraken,
-    pair
+    pair,
+    inversePair
   };
 }
 
@@ -185,6 +192,20 @@ Kraken.prototype.getTicker = function (baseCurrency, quoteCurrency, callback) {
      * }
      */
     const result = res[currencies.pair];
+
+    if(currencies.inversePair){
+      return callback(null, {
+        baseCurrency: currencies.quoteCurrency, // flip base and quote currencies
+        quoteCurrency: currencies.baseCurrency,
+        bid: 1 / parseFloat(result.a[0]), // flip bid to ask
+        ask: 1 / parseFloat(result.b[0]), // flip ask to bid
+        lastPrice: 1 / parseFloat(result.c[0]),
+        high24Hours: 1 / parseFloat(result.l[1]), // flip low to high
+        low24Hours: 1 / parseFloat(result.h[1]), // flip high to low
+        vwap24Hours: 1 / parseFloat(result.p[1]),
+        volume24Hours: coinifyCurrency.toSmallestSubunit(result.v[1], currencies.quoteCurrency)
+      });
+    }
 
     return callback(null, {
       baseCurrency: currencies.baseCurrency,
@@ -669,7 +690,9 @@ Kraken.prototype.listTradeHistoryForPeriod = function (fromDateTime, toDateTime,
       const [ err, converted ] = convertFromKrakenTrade(tradeId, trade);
 
       if (err && !converted) {
-        return callback(Error.create(err, Error.MODULE_ERROR, trade), null);
+        //RFC: if we cannot convert the trade, we should ignore it and continue/silently log it?
+        this.logger.info('Cannot convert kraken trade to internal trade', { tradeId, trade });
+        continue;
       }
 
       validTrades.push(converted);
