@@ -88,7 +88,18 @@ describe('#getTicker', function () {
         v: [ '17265319.40005965', '18011212.83474792' ],
         p: [ '0.1208644', '0.1208695' ], t: [ 1590, 1964 ],
         l: [ '0.1178630', '0.1178630' ],
-        h: [ '0.1239300', '0.1239300' ], o: '0.1209670' }
+        h: [ '0.1239300', '0.1239300' ], o: '0.1209670' },
+      XETHZEUR: {
+        a: [ '2928.43000', '2', '2.000' ],
+        b: [ '2928.42000', '37', '37.000' ],
+        c: [ '2928.43000', '0.01606575' ],
+        v: [ '2183.78657412', '6934.54746836' ],
+        p: [ '2913.36830', '2929.93903' ],
+        t: [ 17292, 39114 ],
+        l: [ '2861.30000', '2861.30000' ],
+        h: [ '2961.52000', '3027.55000' ],
+        o: '2904.83000'
+      }
     }
   };
 
@@ -277,6 +288,37 @@ describe('#getTicker', function () {
     });
   });
 
+  /* =================   Testing inverse pairs   ================= */
+  it('should return a response for the currency pair EUR/ETH', function (done) {
+    reqStub.yields(null, {}, JSON.stringify(getTickerResponse));
+
+    kraken.getTicker('EUR', 'ETH', function (err, result) {
+      if (err) {
+        return done(err);
+      }
+
+      expect(reqStub.calledOnce).to.equal(true);
+      // Check input args
+      expect(reqStub.firstCall.args[0]).to.containSubset({ qs: { pair: 'XETHZEUR' }, url: 'https://api.kraken.com/0/public/Ticker' });
+
+      expect(result).to.be.an('Object');
+
+      expect(result).containSubset({
+        ask: 0.0003414810717041954,
+        baseCurrency: 'ETH',
+        bid: 0.0003414799056149541,
+        high24Hours: 0.00034949148988222133,
+        lastPrice: 0.0003414799056149541,
+        low24Hours: 0.0003303000776205182,
+        quoteCurrency: 'EUR',
+        volume24Hours: 6934547468360000,
+        vwap24Hours: 0.00034130403048011546
+      });
+
+      done();
+    });
+  });
+
   /* =================   Testing wrong input to the endpoint   ================= */
 
   it('should return an error about wrong currency input when baseCurrency is an invalid currency code', function (done) {
@@ -284,7 +326,7 @@ describe('#getTicker', function () {
       expect(reqStub.calledOnce).to.equal(false);
       expect(result).to.equal(undefined);
 
-      expect(err.message).to.contain('Kraken only supports BTC');
+      expect(err.message).to.contain('Kraken only supports');
       expect(err.code).to.equal(Error.MODULE_ERROR);
       expect(err.cause).to.equal(undefined);
 
@@ -297,7 +339,7 @@ describe('#getTicker', function () {
       expect(reqStub.calledOnce).to.equal(false);
       expect(result).to.equal(undefined);
 
-      expect(err.message).to.contain('Kraken only supports BTC');
+      expect(err.message).to.contain('Kraken only supports');
       expect(err.code).to.equal(Error.MODULE_ERROR);
       expect(err.cause).to.equal(undefined);
 
