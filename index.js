@@ -48,14 +48,19 @@ function validateCurrenciesConstructPair(baseCurrency, quoteCurrency) {
 
   let pair;
   let inversePair = false;
+  const concatPair = `${baseCurrency}${quoteCurrency}`;
+
   // Map to inconsistent Kraken pairs
   if ([ 'BTC', 'ETH' ].includes(baseCurrency)) {
     pair = `X${baseCurrencyKraken}Z${quoteCurrency}`;
   } else if ([ 'USDT' ].includes(baseCurrency) && [ 'USD' ].includes(quoteCurrency)) {
     pair = `${baseCurrencyKraken}Z${quoteCurrency}`;
-  }else if ([ 'EUR' ].includes(baseCurrency) && [ 'ETH' ].includes(quoteCurrency)){
+  }else if (constants.INVERSE_CURRENCY_PAIRS[concatPair]){
+    const inverseBase = constants.INVERSE_CURRENCY_PAIRS[concatPair].slice(0, quoteCurrency.length);
+    const inverseQuote = constants.INVERSE_CURRENCY_PAIRS[concatPair].slice(quoteCurrency.length);
+
     inversePair = true;
-    pair = `X${quoteCurrency}Z${baseCurrency}`;
+    pair = `X${inverseBase}Z${inverseQuote}`;
   } else {
     pair = `${baseCurrencyKraken}${quoteCurrency}`;
   }
@@ -195,8 +200,8 @@ Kraken.prototype.getTicker = function (baseCurrency, quoteCurrency, callback) {
 
     if(currencies.inversePair){
       return callback(null, {
-        baseCurrency: currencies.quoteCurrency, // flip base and quote currencies
-        quoteCurrency: currencies.baseCurrency,
+        baseCurrency: currencies.baseCurrency, // We do not flip the input pair as it is the correct direction
+        quoteCurrency: currencies.quoteCurrency,
         bid: 1 / parseFloat(result.a[0]), // flip bid to ask
         ask: 1 / parseFloat(result.b[0]), // flip ask to bid
         lastPrice: 1 / parseFloat(result.c[0]),

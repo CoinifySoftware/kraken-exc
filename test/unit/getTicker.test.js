@@ -305,12 +305,12 @@ describe('#getTicker', function () {
 
       expect(result).containSubset({
         ask: 0.0003414810717041954,
-        baseCurrency: 'ETH',
+        baseCurrency: 'EUR',
         bid: 0.0003414799056149541,
         high24Hours: 0.00034949148988222133,
         lastPrice: 0.0003414799056149541,
         low24Hours: 0.0003303000776205182,
-        quoteCurrency: 'EUR',
+        quoteCurrency: 'ETH',
         volume24Hours: 6934547468360000,
         vwap24Hours: 0.00034130403048011546
       });
