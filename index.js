@@ -128,16 +128,27 @@ Kraken.prototype.getOrderBook = function (baseCurrency, quoteCurrency, callback)
     /* Declare the orderBook object with the currency pair */
     const orderBook = {
       baseCurrency: currencies.baseCurrency,
-      quoteCurrency: currencies.quoteCurrency
+      quoteCurrency: currencies.quoteCurrency,
+      bids: [],
+      asks: []
     };
 
     /* Organize the Order Book values in a custom way */
     const convertRawEntry = function convertRawEntry(entry) {
-      return {
-        price: parseFloat(entry[0]),
-        baseAmount: coinifyCurrency.toSmallestSubunit(parseFloat(entry[1]), currencies.baseCurrency)
-      };
+      const price = parseFloat(entry[0]);
+      const baseAmount = coinifyCurrency.toSmallestSubunit(parseFloat(entry[1]), currencies.baseCurrency);
+
+      if (currencies.inversePair) {
+        return {
+          price: 1 / price,
+          //RFC: Not sure if this is the correct calculation:
+          baseAmount: coinifyCurrency.toSmallestSubunit(baseAmount * price, currencies.quoteCurrency)
+        };
+      }
+
+      return { price, baseAmount };
     };
+
     const rawBids = res[currencies.pair].bids || [];
     const rawAsks = res[currencies.pair].asks || [];
 
@@ -148,6 +159,8 @@ Kraken.prototype.getOrderBook = function (baseCurrency, quoteCurrency, callback)
     return callback(null, orderBook);
   });
 };
+
+
 
 /**
  * Returns ticker information for a given currency pair.
