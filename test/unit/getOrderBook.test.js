@@ -337,6 +337,58 @@ describe('#getOrderBook', function () {
       done();
     });
   });
+
+  it('should get order book for EUR/ETH Inversed Pair', (done) => {
+    const getOrderBookTRXResponse = {
+      error: [],
+      result: {
+        XETHZEUR: {
+          bids: [
+            [ '8.42930354', '45307.408', 1712770715 ],
+            [ '8.42924335', '199.749', 1712770535 ],
+            [ '8.42918316', '4857.909', 1712770715 ],
+            [ '8.42883493', '1524.687', 1712770726 ]
+          ],
+          asks: [
+            [ '8.42930361', '45307.408', 1712770300 ],
+            [ '8.42924288', '199.749', 1712770717 ],
+            [ '8.42918271', '4857.909', 1712770721 ],
+            [ '8.42883446', '1524.687', 1712770709 ]
+          ]
+        }
+      }
+    };
+
+    reqStub.yields(null, {}, JSON.stringify(getOrderBookTRXResponse));
+
+    kraken.getOrderBook('EUR', 'ETH', (err, result) => {
+      if (err) {
+        return done(err);
+      }
+
+      expect(result).to.eql({
+        baseCurrency: 'EUR',
+        quoteCurrency: 'ETH',
+        asks: [
+          { price: 0.11863376220233215, baseAmount: 38190991467275010000 },
+          { price: 0.1186346169206599, baseAmount: 168374126528000000 },
+          { price: 0.11863546376965414, baseAmount: 4094821097873609700 },
+          { price: 0.11864036537265202, baseAmount: 1285135961281739800 }
+        ],
+        bids: [
+          { price: 0.11863376318751004, baseAmount: 38190991150123130000 },
+          { price: 0.11863461030579928, baseAmount: 168374135916250020 },
+          { price: 0.1186354574361865, baseAmount: 4094821316479559700 },
+          { price: 0.11864035875715032, baseAmount: 1285136032942170000 }
+        ]
+      });
+
+      done();
+    });
+  });
+
+
+
   /* =================   Testing wrong input to the endpoint   ================= */
 
   it('should return an error about wrong currency input when baseCurrency is an invalid currency code', function (done) {
@@ -344,7 +396,7 @@ describe('#getOrderBook', function () {
       expect(reqStub.calledOnce).to.equal(false);
       expect(result).to.equal(undefined);
 
-      expect(err.message).to.contain('Kraken only supports BTC, ');
+      expect(err.message).to.contain('Kraken only supports');
       expect(err.code).to.equal(Error.MODULE_ERROR);
       expect(err.cause).to.equal(undefined);
 
@@ -357,12 +409,11 @@ describe('#getOrderBook', function () {
       expect(reqStub.calledOnce).to.equal(false);
       expect(result).to.equal(undefined);
 
-      expect(err.message).to.contain('Kraken only supports BTC, ');
+      expect(err.message).to.contain('Kraken only supports');
       expect(err.code).to.equal(Error.MODULE_ERROR);
       expect(err.cause).to.equal(undefined);
 
       done();
     });
   });
-
 });
