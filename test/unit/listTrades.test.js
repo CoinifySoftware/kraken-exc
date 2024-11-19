@@ -10,64 +10,64 @@ describe('#listTrades', function () {
     otp: '2FA'
   });
 
-  let reqStub, getTradesResponse, trades;
+  let reqStub, getTradesResponse, trades, expectedTrades;
 
-  const expectedTrades = [
-    {
-      baseCurrency: 'ETH',
-      quoteCurrency: 'USD'
-    },
-    {
-      baseCurrency: 'EUR',
-      quoteCurrency: 'USD'
-    },
-    {
-      baseCurrency: 'BTC',
-      quoteCurrency: 'USD'
-    },
-    {
-      baseCurrency: 'BTC',
-      quoteCurrency: 'USD'
-    },
-    {
-      baseCurrency: 'BTC',
-      quoteCurrency: 'USD'
-    },
-    {
-      baseCurrency: 'ETH',
-      quoteCurrency: 'EUR'
-    },
-    {
-      baseCurrency: 'USDC',
-      quoteCurrency: 'EUR'
-    },
-    {
-      baseCurrency: 'USDC',
-      quoteCurrency: 'EUR'
-    },
-    {
-      baseCurrency: 'EUR',
-      quoteCurrency: 'USDC'
-    },
-    {
-      baseCurrency: 'EUR',
-      quoteCurrency: 'TRX'
-    },
-    {
-      baseCurrency: 'EUR',
-      quoteCurrency: 'ALGO'
-    },
-    {
-      baseCurrency: 'ETH',
-      quoteCurrency: 'EUR'
-    },
-    {
-      baseCurrency: 'EUR',
-      quoteCurrency: 'ETH'
-    }
-  ];
+  beforeEach(() => {
+    expectedTrades = [
+      {
+        baseCurrency: 'ETH',
+        quoteCurrency: 'USD'
+      },
+      {
+        baseCurrency: 'EUR',
+        quoteCurrency: 'USD'
+      },
+      {
+        baseCurrency: 'BTC',
+        quoteCurrency: 'USD'
+      },
+      {
+        baseCurrency: 'BTC',
+        quoteCurrency: 'USD'
+      },
+      {
+        baseCurrency: 'BTC',
+        quoteCurrency: 'USD'
+      },
+      {
+        baseCurrency: 'ETH',
+        quoteCurrency: 'EUR'
+      },
+      {
+        baseCurrency: 'USDC',
+        quoteCurrency: 'EUR'
+      },
+      {
+        baseCurrency: 'USDC',
+        quoteCurrency: 'EUR'
+      },
+      {
+        baseCurrency: 'EUR',
+        quoteCurrency: 'USDC'
+      },
+      {
+        baseCurrency: 'EUR',
+        quoteCurrency: 'TRX'
+      },
+      {
+        baseCurrency: 'EUR',
+        quoteCurrency: 'ALGO'
+      },
+      {
+        baseCurrency: 'ETH',
+        quoteCurrency: 'EUR'
+      },
+      {
+        baseCurrency: 'EUR',
+        quoteCurrency: 'ETH'
+      }
+    ];
 
-  beforeEach((done) => {
     trades = {
       '0000-0000-0000-0000': {
         ordertxid: 'OQCLML-BW3P3-BUCMWZ',
@@ -275,24 +275,21 @@ describe('#listTrades', function () {
       result: {}
     };
     reqStub = sinon.stub(request, 'post');
-    done();
   });
 
-  afterEach((done) => {
+  afterEach(() => {
     reqStub.restore();
-    done();
   });
 
-  it('should get the earliest trade possible if nothing is passed to the latestTrade argument', async (done) => {
-    const krakenTrades = await kraken.listTrades(null);
+  it('should get the earliest trade possible if nothing is passed to the latestTrade argument', async () => {
+    const krakenTrades = await kraken.listTrades({ createTime: new Date });
     expect(krakenTrades).containSubset([ {
       baseCurrency: 'ETH',
       quoteCurrency: 'USD'
     }, ...expectedTrades ]);
-    done();
   });
 
-  it('should only get trades in the given range ', async (done) => {
+  it('should only get trades in the given range ', async () => {
     getTradesResponse.result = { trades };
     reqStub.yields(null, {}, JSON.stringify(getTradesResponse));
 
@@ -300,6 +297,7 @@ describe('#listTrades', function () {
     from.setTime(from.getTime() - 60 * 60 * 1000);
 
     const krakenTrades = await kraken.listTrades({ createTime: from });
+
     expect(reqStub.calledOnce).equal(true);
     expect(reqStub.firstCall.args[0]).containSubset({
       form: {
@@ -310,6 +308,5 @@ describe('#listTrades', function () {
     expect(krakenTrades).an('Array');
     expect(krakenTrades).length(expectedTrades.length);//Skip the one not within the time
     expect(krakenTrades).containSubset(expectedTrades);
-    done();
   });
 });
