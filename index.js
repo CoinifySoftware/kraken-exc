@@ -720,4 +720,51 @@ Kraken.prototype.listTradeHistoryForPeriod = function (fromDateTime, toDateTime,
   });
 };
 
+Kraken.prototype.listTrades = function (latestTrade){
+  return new Promise( (resolve, reject) => {
+    let latestTxDate = new Date(0);
+
+    if(latestTrade && latestTrade.createTime){
+      latestTxDate = latestTrade.createTime;
+    }
+
+    Request.post(this, 'TradesHistory', {
+      type: 'all',
+      trades: false,
+      start: latestTxDate.getTime() / 1000
+    }, (err, res) => {
+      if (err) {
+        throw err;
+      }
+
+      const { trades } = res;
+
+      if(!trades || typeof trades !== 'object') {
+        throw Error.create('Invalid response from kraken trades endpoint.', Error.MODULE_ERROR, res);
+      }
+
+      const validTrades = [];
+      if (Object.keys(trades).length === 0) {
+        return resolve(validTrades);
+      }
+
+      for (const [ tradeId, trade ] of Object.entries(trades)) {
+        if (trade.time < latestTxDate.getTime() / 1000) {
+          continue;
+        }
+
+        const [ err, converted ] = convertFromKrakenTrade(tradeId, trade);
+
+        if (err && !converted) {
+          throw Error.create(err, Error.MODULE_ERROR, trade);
+        }
+
+        validTrades.push(converted);
+      }
+
+      return resolve(validTrades);
+    });
+  });
+};
+
 module.exports = Kraken;
