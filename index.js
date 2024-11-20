@@ -141,7 +141,6 @@ Kraken.prototype.getOrderBook = function (baseCurrency, quoteCurrency, callback)
       if (currencies.inversePair) {
         return {
           price: 1 / price,
-          //RFC: Not sure if this is the correct calculation:
           baseAmount: coinifyCurrency.toSmallestSubunit(baseAmount * price, currencies.quoteCurrency)
         };
       }
@@ -691,7 +690,7 @@ Kraken.prototype.listTradeHistoryForPeriod = function (fromDateTime, toDateTime,
 
     const { trades } = res;
 
-    if(!trades || typeof trades !== 'object') {
+    if (!trades || typeof trades !== 'object') {
       return callback(Error.create('Invalid response from kraken trades endpoint.', Error.MODULE_ERROR, res), null);
     }
 
@@ -708,7 +707,6 @@ Kraken.prototype.listTradeHistoryForPeriod = function (fromDateTime, toDateTime,
       const [ err, converted ] = convertFromKrakenTrade(tradeId, trade);
 
       if (err && !converted) {
-        //RFC: if we cannot convert the trade, we should ignore it and continue/silently log it?
         this.logger.info('Cannot convert kraken trade to internal trade', { tradeId, trade });
         continue;
       }
@@ -719,5 +717,22 @@ Kraken.prototype.listTradeHistoryForPeriod = function (fromDateTime, toDateTime,
     callback(null, validTrades);
   });
 };
+
+Kraken.prototype.listTrades = async function (latestTrade = null) {
+  return new Promise((resolve, reject) => {
+    const latestTxDate = latestTrade && latestTrade.createTime
+      ? latestTrade.createTime
+      : new Date(0);
+
+    this.listTradeHistoryForPeriod(latestTxDate, new Date(), (error, trades) => {
+      if (error) {
+        return reject(error);
+      }
+
+      resolve(trades || []);
+    });
+  });
+};
+
 
 module.exports = Kraken;
