@@ -15,6 +15,10 @@ describe('#listTrades', function () {
   beforeEach(() => {
     expectedTrades = [
       {
+        baseCurrency: 'ETH',
+        quoteCurrency: 'USD'
+      },
+      {
         baseCurrency: 'BTC',
         quoteCurrency: 'USD'
       },
@@ -100,10 +104,7 @@ describe('#listTrades', function () {
     reqStub.yields(null, {}, JSON.stringify(getTradesResponse));
 
     const krakenTrades = await kraken.listTrades();
-    expect(krakenTrades).containSubset([ {
-      baseCurrency: 'ETH',
-      quoteCurrency: 'USD'
-    }, ...expectedTrades ]);
+    expect(krakenTrades).containSubset(expectedTrades);
   });
 
   it('should only get trades in the given range ', async () => {
