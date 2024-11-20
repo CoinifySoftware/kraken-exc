@@ -29,6 +29,22 @@ describe('#listTrades', function () {
     ];
 
     trades = {
+      'UYWJEG-FL4SZ-3FKGH6': {
+        ordertxid: 'OAELML-BW3P3-BUCMWZ',
+        postxid: 'TAH2SE-MEIF5-CFI7LT',
+        pair: 'XETHZUSD',
+        time: Date.now() / 1000,
+        type: 'sell',
+        ordertype: 'limit',
+        price: '3001.00000',
+        cost: '300.10000',
+        fee: '0.00000',
+        vol: '0.01000000',
+        margin: '0.00000',
+        misc: '',
+        trade_id: 39482674,
+        maker: true
+      },
       'TYWJEG-FL4SZ-3FKGH6': {
         ordertxid: 'OAELML-BW3P3-BUCMWZ',
         postxid: 'TAH2SE-MEIF5-CFI7LT',
@@ -80,7 +96,10 @@ describe('#listTrades', function () {
   });
 
   it('should get the earliest trade possible if nothing is passed to the latestTrade argument', async () => {
-    const krakenTrades = await kraken.listTrades({ createTime: new Date });
+    getTradesResponse.result = { trades };
+    reqStub.yields(null, {}, JSON.stringify(getTradesResponse));
+
+    const krakenTrades = await kraken.listTrades();
     expect(krakenTrades).containSubset([ {
       baseCurrency: 'ETH',
       quoteCurrency: 'USD'

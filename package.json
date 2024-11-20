@@ -40,8 +40,8 @@
   "scripts": {
     "lint": "npx eslint --color .",
     "lint-fix": "npx eslint --fix .",
-    "test": "LOG_LEVEL=fatal mocha --config .mocharc.json",
+    "test": "LOG_LEVEL=info mocha --config .mocharc.json",
     "test-watch": "LOG_LEVEL=info mocha --config .mocharc.json --watch"
   },
-  "version": "2.4.9"
+  "version": "2.5.0"
 }
