@@ -112,7 +112,8 @@ describe('#listTrades', function () {
     reqStub.yields(null, {}, JSON.stringify(getTradesResponse));
 
     const from = new Date();
-    from.setTime(from.getTime() - 60 * 60 * 1000);
+    // Outside of 24 hour period
+    from.setTime(from.getTime() - 25 * 60 * 60 * 1000);
 
     const krakenTrades = await kraken.listTrades({ createTime: from });
 
@@ -126,5 +127,24 @@ describe('#listTrades', function () {
     expect(krakenTrades).an('Array');
     expect(krakenTrades).length(expectedTrades.length);//Skip the one not within the time
     expect(krakenTrades).containSubset(expectedTrades);
+  });
+  it('should decrease 24h from the latestTxDate if it is within the last 24 hours ', async () => {
+    getTradesResponse.result = { trades };
+    reqStub.yields(null, {}, JSON.stringify(getTradesResponse));
+
+    const from = new Date();
+    from.setTime(from.getTime() - 20 * 60 * 60 * 1000);
+
+    const expectedTime = new Date(from.getTime() - 24 * 60 * 60 * 1000);
+    const krakenTrades = await kraken.listTrades({ createTime: from });
+
+    expect(reqStub.calledOnce).equal(true);
+    expect(reqStub.firstCall.args[0]).containSubset({
+      form: {
+        start: expectedTime.getTime() / 1000
+      }
+    });
+
+    expect(krakenTrades).an('Array');
   });
 });
