@@ -720,9 +720,15 @@ Kraken.prototype.listTradeHistoryForPeriod = function (fromDateTime, toDateTime,
 
 Kraken.prototype.listTrades = async function (latestTrade = null) {
   return new Promise((resolve, reject) => {
+    /** @var {Date} **/
     const latestTxDate = latestTrade && latestTrade.createTime
       ? latestTrade.createTime
       : new Date(0);
+
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    if (latestTxDate > twentyFourHoursAgo) {
+      latestTxDate.setHours(latestTxDate.getHours() - 24);
+    }
 
     this.listTradeHistoryForPeriod(latestTxDate, new Date(), (error, trades) => {
       if (error) {
