@@ -112,7 +112,7 @@ describe('#listTrades', function () {
     reqStub.yields(null, {}, JSON.stringify(getTradesResponse));
 
     const from = new Date();
-    // Outside of 24 hour period
+    // Outside the 24-hour period
     from.setTime(from.getTime() - 25 * 60 * 60 * 1000);
 
     const krakenTrades = await kraken.listTrades({ createTime: from });
