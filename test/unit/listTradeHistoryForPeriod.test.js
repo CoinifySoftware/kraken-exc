@@ -242,7 +242,9 @@ describe('#listTradeHistoryForPeriod', function () {
       expect(trades).containSubset([
         {
           baseCurrency: 'ETH',
-          quoteCurrency: 'USD'
+          quoteCurrency: 'USD',
+          baseAmount: 10000000000,
+          quoteAmount: -30010
         },
         {
           baseCurrency: 'EUR',
@@ -254,7 +256,9 @@ describe('#listTradeHistoryForPeriod', function () {
         },
         {
           baseCurrency: 'BTC',
-          quoteCurrency: 'USD'
+          quoteCurrency: 'USD',
+          baseAmount: -1000000,
+          quoteAmount: 30010000
         },
         {
           baseCurrency: 'BTC',
