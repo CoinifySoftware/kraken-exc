@@ -258,7 +258,7 @@ describe('#listTradeHistoryForPeriod', function () {
           baseCurrency: 'BTC',
           quoteCurrency: 'USD',
           baseAmount: -1000000,
-          quoteAmount: 30010000
+          quoteAmount: 30010
         },
         {
           baseCurrency: 'BTC',
