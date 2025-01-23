@@ -111,6 +111,7 @@ describe('#listTradeHistoryForPeriod', function () {
         maker: true
       },
       'OO3QCQ-SOJXH-NWMZZF': {
+        ordertxid: 'OO3QCQ-SOJXH-NWMZZF',
         fee: '104.68207',
         vol: '24.91800000',
         cost: '58156.69775',
@@ -122,6 +123,7 @@ describe('#listTradeHistoryForPeriod', function () {
         status: 'closed'
       },
       'OOEEE3QCQ-SOJXH-NWMZZF': {
+        ordertxid: 'OOEEE3QCQ-SOJXH-NWMZZF',
         fee: '104.68207',
         vol: '24.91800000',
         cost: '58156.69775',
@@ -133,6 +135,7 @@ describe('#listTradeHistoryForPeriod', function () {
         status: 'closed'
       },
       'OOUEE3QCQ-SOJXH-NWMZZF': {
+        ordertxid: 'OOUEE3QCQ-SOJXH-NWMZZF',
         fee: '104.68207',
         vol: '24.91800000',
         cost: '58156.69775',
@@ -144,6 +147,7 @@ describe('#listTradeHistoryForPeriod', function () {
         status: 'closed'
       },
       'EOUEE3QCQ-SOJXH-NWMZZF': {
+        ordertxid: 'EOUEE3QCQ-SOJXH-NWMZZF',
         fee: '104.68207',
         vol: '24.91800000',
         cost: '58156.69775',
@@ -155,6 +159,7 @@ describe('#listTradeHistoryForPeriod', function () {
         status: 'closed'
       },
       'IOUEE3QCQ-SOJXH-NWMZZF': {
+        ordertxid: 'IOUEE3QCQ-SOJXH-NWMZZF',
         fee: '104.68207',
         vol: '24.91800000',
         cost: '58156.69775',
@@ -166,6 +171,7 @@ describe('#listTradeHistoryForPeriod', function () {
         status: 'closed'
       },
       'ROUEE3QCQ-SOJXH-NWMZZF': {
+        ordertxid: 'ROUEE3QCQ-SOJXH-NWMZZF',
         fee: '104.68207',
         vol: '24.91800000',
         cost: '58156.69775',
@@ -177,6 +183,7 @@ describe('#listTradeHistoryForPeriod', function () {
         status: 'closed'
       },
       'KOUEE3QCQ-SOJXH-NWMZZF': {
+        ordertxid: 'KOUEE3QCQ-SOJXH-NWMZZF',
         fee: '104.68207',
         vol: '24.91800000',
         cost: '58156.69775',
@@ -188,6 +195,7 @@ describe('#listTradeHistoryForPeriod', function () {
         status: 'closed'
       },
       'KYUEE3QCQ-SOJXH-NWMZZF': {
+        ordertxid: 'KYUEE3QCQ-SOJXH-NWMZZF',
         fee: '104.68207',
         vol: '24.91800000',
         cost: '58156.69775',
@@ -241,12 +249,14 @@ describe('#listTradeHistoryForPeriod', function () {
       expect(trades).length(trades.length);
       expect(trades).containSubset([
         {
+          externalId: 'OQCLML-BW3P3-BUCMWZ',
           baseCurrency: 'ETH',
           quoteCurrency: 'USD',
           baseAmount: 10000000000,
           quoteAmount: -30010
         },
         {
+          externalId: 'OACLML-BW3P3-BUCMWZ',
           baseCurrency: 'EUR',
           quoteCurrency: 'USD'
         },
