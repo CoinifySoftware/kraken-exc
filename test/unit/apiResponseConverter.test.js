@@ -112,7 +112,7 @@ describe('#ApiResponseConverter', function () {
     it('convertFromKrakenTrade', () => {
       const id = 'TCWJEG-FL4SZ-3FKGH6';
       const [ err, trade ] = convertFromKrakenTrade(id, {
-        ordertxid: 'OQCLML-BW3P3-BUCMWZ',
+        ordertxid: id,
         postxid: 'TKH2SE-M7IF5-CFI7LT',
         pair: 'XETHZUSD',
         time: Date.now()/1000,
