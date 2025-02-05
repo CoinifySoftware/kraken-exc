@@ -329,4 +329,75 @@ describe('listTransactions', () => {
       });
     });
   });
+
+  it('should ignore invalid currencies', (done) => {
+    //Mock response...
+    const withdrawalRawObject = {
+      refid: 'ACLLUS5-JKRHGP-ZWWYSO',
+      time: 1480675052.7086,
+      type: 'withdrawal',
+      aclass: 'currency',
+      asset: 'TAO',
+      amount: '-24952.5900',
+      fee: '47.4100',
+      balance: '4440.5843'
+    };
+
+    const withdrawalApiResponse =
+      {
+        ledger: { 'YQ4LR7-6WL5O-Y4XDP3': withdrawalRawObject }
+      };
+
+    /*
+     * Mock response from the deposit Ledgers endpoint
+     */
+    const depositRawObject =
+      {
+        refid: 'QGB2OUR-O5OQ6O-T5RZJF',
+        time: 1420989927.5751,
+        type: 'deposit',
+        aclass: 'currency',
+        asset: 'XXBT',
+        amount: '0.0465757500',
+        fee: '0.0000000000',
+        balance: '8.3684639100'
+      };
+    const depositApiResponse =
+      {
+        ledger: { 'Y4HJR1-WWT7H-YH945H': depositRawObject }
+      };
+
+    /*
+     * Define expected response from listTransactions()
+     * Note that the deposit is the oldest, so it is returned first as per the API definition
+     */
+    const expectedConvertedResponse = [
+      {
+        externalId: 'QGB2OUR-O5OQ6O-T5RZJF',
+        timestamp: '2015-01-11T15:25:27.575Z',
+        state: 'completed',
+        amount: 4657575,
+        currency: 'BTC',
+        type: 'deposit',
+        raw: depositRawObject
+      }, null //this is the invalid currency
+    ];
+
+    const withdrawalReqStub = reqStub.withArgs(sinon.match.any, 'Ledgers', sinon.match({ type: 'withdrawal' }));
+    withdrawalReqStub.onCall(0).yields(null, withdrawalApiResponse);
+    withdrawalReqStub.onCall(1).yields(null, { ledger: {} });
+
+    const depositReqStub = reqStub.withArgs(sinon.match.any, 'Ledgers', sinon.match({ type: 'deposit' }));
+    depositReqStub.onCall(0).yields(null, depositApiResponse);
+    depositReqStub.onCall(1).yields(null, { ledger: {} });
+
+    kraken.listTransactions(null, function (err, result) {
+      if (err) {
+        return done(err);
+      }
+      expect(result).to.deep.equal(expectedConvertedResponse);
+
+      done();
+    });
+  });
 });
