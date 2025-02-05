@@ -561,7 +561,7 @@ Kraken.prototype._listTransactionsRecursive = function (type, start, knownTransa
         }catch (err) {
           const msg = err.cause ? err.cause.message : err.message;
           if(msg.match(new RegExp('Invalid currency \'[A-Z]{2,4}\'', 'g'))){
-            this.logger.info({ err, exchange: 'kraken' }, msg);
+            this.logger.info(err, msg);
             return null; //convertFromKrakenTransaction can also return null so we just continue with that as "invalid"
           }
           throw err;
