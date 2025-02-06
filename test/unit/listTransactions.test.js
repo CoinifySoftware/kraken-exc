@@ -380,7 +380,7 @@ describe('listTransactions', () => {
         currency: 'BTC',
         type: 'deposit',
         raw: depositRawObject
-      }, null //this is the invalid currency
+      }
     ];
 
     const withdrawalReqStub = reqStub.withArgs(sinon.match.any, 'Ledgers', sinon.match({ type: 'withdrawal' }));
