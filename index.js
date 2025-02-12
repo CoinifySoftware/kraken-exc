@@ -555,18 +555,17 @@ Kraken.prototype._listTransactionsRecursive = function (type, start, knownTransa
 
     try {
       // Construct transaction objects for each ledger entry
-      const transactions = _.values(response.ledger).map(tx => {
-        try{
-          return convertFromKrakenTransaction(tx);
-        }catch (err) {
-          const msg = err.cause ? err.cause.message : err.message;
-          if(msg.match(new RegExp('Invalid currency \'[A-Z]{2,4}\'', 'g'))){
-            this.logger.info(err, msg);
+      const transactions = _.values(response.ledger)
+        .map(transaction => {
+          const symbol = convertFromKrakenCurrencyCode(transaction.asset);
+          if(!coinifyCurrency.isValidCurrency(symbol)) {
+            this.logger.info(transaction, `Invalid currency '${symbol}'`);
             return null;
           }
-          throw err;
-        }
-      }).filter(item => item !== null);
+
+          return convertFromKrakenTransaction(transaction);
+        })
+        .filter(item => item !== null);
 
       // Merge our newly converted transactions with the ones from previous calls
       const allTransactions = transactions.concat(knownTransactions);
